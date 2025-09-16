@@ -6,12 +6,14 @@ import './index.css';
 import App from './App.jsx';
 
 const root = createRoot(document.getElementById('root'));
+const domainId = import.meta.env.VITE_AUTH0_DOMAINID; //remember to put a VITE_ before the name of your env variable or else it breaks
+const clientId = import.meta.env.VITE_AUTH0_CLIENTID;
 
 root.render(
   <StrictMode>
   <Auth0Provider
-      domain="dev-aoybn4a26o6s8kng.us.auth0.com"
-      clientId="tKh4WOCWEY3Es4AkoOYSRrxpHj84iHTS"
+      domain =  {domainId}
+      clientId= {clientId}
       authorizationParams={{
         redirect_uri: `${window.location.origin}/dashboard`,
       }}
