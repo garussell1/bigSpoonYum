@@ -9,7 +9,7 @@ export const LandingPage = () => {
             <h1> Welcome to Big Spoon Yum</h1>
             <p> for all your dietary needs</p>
                 
-            <button onClick={() => loginWithRedirect()}>Log In</button>
+            <button className="cosmic-button"onClick={() => loginWithRedirect()}>Log In</button>
         </div>
     );
 }

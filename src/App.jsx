@@ -3,6 +3,7 @@ import { Home } from "./pages/Home";
 import { NotFound } from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import { useAuth0 } from "@auth0/auth0-react";
+import { RecipeDash } from "./pages/RecipeDash";
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           <Route index element={<Home />}/>
           <Route path = "*" element={<NotFound />}/>
           <Route path = "/dashboard" element={<Dashboard />}/>
+          <Route path = "/recipes" element={<RecipeDash />}/>
         </Routes>
       </BrowserRouter>
     </>
