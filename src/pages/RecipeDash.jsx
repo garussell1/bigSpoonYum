@@ -4,13 +4,9 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useState } from 'react';
 
 
-
-
-
-
 export const RecipeDash = () => {
 
-    const filters = ['all','GF', 'HP', 'V', 'VG', 'DF', 'PF']
+    const filters = ['all','Vegetarian', 'Vegan', 'GF', 'Peanut-Free', 'Treenut-Free', 'Soy-Free', 'Lactose-Free', 'Diabetes', 'Kosher']
 
     const recipes = [
         {   
@@ -225,7 +221,7 @@ export const RecipeDash = () => {
             </div>
            
             <div className="py-56" >
-                <h1 className="font-bold text-4xl ">Recipe time</h1>
+                <h1 className="font-bold text-4xl ">Recipe Database</h1><br></br>
                 <div className='flex flex-wrap justify-center gap-4 mb-12'>
                     {filters.map((filter, key) => (
                         <button 
