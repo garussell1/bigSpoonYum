@@ -1,7 +1,7 @@
 // RecipeDash.jsx — styled to match Dashboard.jsx
 import { useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 // Keep the same tag set used on Dashboard
 const TAGS = [
@@ -18,60 +18,37 @@ const TAGS = [
 ];
 
 // Mock recipe data (you can swap this later)
-const RECIPES = [
-  {
-    id: 0,
-    name: "Mac and Cheese",
-    filters: ["GF"],
-    instructions:
-      "Boil macaroni, then stir in cheese and butter. Serve hot.",
-    time: 15,
-    numberOfPeople: 4,
-  },
-  {
-    id: 1,
-    name: "Bacon Pepperoni",
-    filters: ["GF"],
-    instructions:
-      "Sauté pepperoni in butter; top with crisped bacon. Serve.",
-    time: 10,
-    numberOfPeople: 2,
-  },
-  {
-    id: 2,
-    name: "Coconut Lentil Curry",
-    filters: ["Vegan", "GF", "Soy-Free"],
-    instructions:
-      "Simmer red lentils in coconut milk with curry spices.",
-    time: 25,
-    numberOfPeople: 4,
-  },
-  {
-    id: 3,
-    name: "Bagels & Lox",
-    filters: ["Kosher"],
-    instructions:
-      "Toast bagels, add cream cheese and smoked salmon.",
-    time: 8,
-    numberOfPeople: 2,
-  },
-];
+
 
 export const RecipeDash = () => {
-  const { isAuthenticated, user, isLoading } = useAuth0();
-  const navigate = useNavigate();
+    useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/items");
+        const data = await res.json();
+        setRecipes(data);
+      } catch (err) {
+        console.error("Error fetching recipes:", err);
+      }
+    };
+    fetchRecipes();
+    }, []);
 
-  const [activeTag, setActiveTag] = useState("all");
-  const [selected, setSelected] = useState([]);
+    const { isAuthenticated, user, isLoading } = useAuth0();
+    const [ recipes, setRecipes] = useState([])
+    const navigate = useNavigate();
 
-  const filtered = useMemo(() => {
-    if (activeTag === "all") return RECIPES;
-    return RECIPES.filter((r) =>
+    const [activeTag, setActiveTag] = useState("all");
+    const [selected, setSelected] = useState([]);
+
+    const filtered = useMemo(() => {
+    if (activeTag === "all") return recipes;
+    return recipes.filter((r) =>
       (r.filters || []).some(
         (t) => t.toLowerCase() === activeTag.toLowerCase()
       )
     );
-  }, [activeTag]);
+  }, [recipes, activeTag]);
 
   const toggleSelect = (id) =>
     setSelected((prev) =>
@@ -141,10 +118,10 @@ export const RecipeDash = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {filtered.map((r) => (
                 <article
-                  key={r.id}
-                  onClick={() => toggleSelect(r.id)}
+                  key={r._id}
+                  onClick={() => toggleSelect(r._id)}
                   className={`rounded-2xl border bg-white p-5 shadow-sm hover:shadow transition cursor-pointer ${
-                    selected.includes(r.id) ? "ring-2 ring-blue-500" : ""
+                    selected.includes(r._id) ? "ring-2 ring-blue-500" : ""
                   }`}
                   title="Click to select"
                 >
