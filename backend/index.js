@@ -7,11 +7,11 @@ const cors = require("cors");
 const app = express();
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/yourDB-name', {
+mongoose.connect('mongodb://localhost:27017/RecipesTest', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
-    console.log('Connected to yourDB-name database');
+    console.log('Connected to RecipesTest database');
 }).catch((err) => {
     console.log('Error connecting to database', err);
 });
