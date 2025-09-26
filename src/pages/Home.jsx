@@ -22,12 +22,18 @@ export const Home = () => {
             <h1> Welcome {user.name } to Big Spoon Yum!</h1>
             <p> we love you and will do anything for you. I promise.</p>
             <button
-                className="px-4 py-2 bg-green-500 text-white rounded"
+                className="cosmic-button"
                 onClick={() => navigate("/dashboard")}
             >
                 Go to Dashboard
             </button>
-            <button onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>
+             <button
+                className="cosmic-button"
+                onClick={() => navigate("/recipes")}
+            >
+                Go to Recipe Dashboard
+            </button>
+            <button className="cosmic-button" onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>
             Log Out
         </button>
         </div>
