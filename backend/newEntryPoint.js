@@ -28,18 +28,22 @@ app.get("/items", async (req, res) => {
   }
 });
 
-//const Recipe = require("./newSchema");
+// const Recipe = require("./newSchema");
 //
 // Insert a clean recipe
 // app.get("/seed", async (req, res) => {
 //   try {
 //     const sample = new Recipe({
-//       name: "Cous Cous and Fibars",
+//       name: "Bacon Pepperoni",
 //       ingredients: [
-//         { name: "cous cous", quantity: 30, unit: "oz" },
-//         { name: "fibars", quantity: 10, unit: "pcs" }
+//         { name: "Bacon", quantity: 1, unit: "lb" },
+//         { name: "Pepperoni", quantity: 1000, unit: "slices" },
+//         { name: "Butter", quantity: 6, unit: "lb"}
 //       ],
-//       instructions: "Mix cous cous with fibars and cook for 10 minutes."
+//       filters: ['Vegan', 'Lactose-Free'],      
+//       instructions: "Mix cous cous with fibars and cook for 10 minutes.",
+//       time: 60,
+//       numberOfPeople: 5,
 //     });
 
 //     await sample.save();

@@ -9,7 +9,10 @@ const recipeSchema = new mongoose.Schema({
       unit: String                        //Unit (if 12oz then unit is oz)
     }
   ],
-  instructions: String
+  filters: [String],
+  instructions: String,
+  time: Number,
+  numberOfPeople: Number
 }, { collection: "recipe" }); // force it to use "recipe"
 
 module.exports = mongoose.model("Recipe", recipeSchema);
