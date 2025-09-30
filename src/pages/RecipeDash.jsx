@@ -2,6 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useMemo, useState } from "react";
+import Popup from "../components/Popup";
 
 // Keep the same tag set used on Dashboard
 const TAGS = [
@@ -37,6 +38,11 @@ export const RecipeDash = () => {
     const { isAuthenticated, user, isLoading } = useAuth0();
     const [ recipes, setRecipes] = useState([])
     const navigate = useNavigate();
+    const [ isPopupOpen, setIsPopupOpen] = useState(false);
+    const handleCheckout = () => {
+        localStorage.setItem("selectedRecipes", JSON.stringify(selected));
+        navigate("/checkout");
+    }
 
     const [activeTag, setActiveTag] = useState("all");
     const [selected, setSelected] = useState([]);
@@ -50,17 +56,17 @@ export const RecipeDash = () => {
     );
   }, [recipes, activeTag]);
 
-  const toggleSelect = (id) =>
+  const toggleSelect = (recipe) => {
     setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        prev.find((r) => r._id === recipe._id)
+        ? prev.filter((r) => r._id !== recipe._id) // remove if already selected
+        : [...prev, recipe] // otherwise add recipe object
     );
+    };
+
 
   if (isLoading) return <div className="p-6">Loading…</div>;
-  if (!isAuthenticated) {
-    // If you want this page open to everyone, remove this redirect.
-    // Otherwise, mirror Dashboard's auth gate:
-    return navigate("/");
-  }
+  if (!isAuthenticated) return <Navigate to="/" replace />;
 
   return (
     <div className="min-h-screen bg-[#e6f0f8]">
@@ -119,9 +125,9 @@ export const RecipeDash = () => {
               {filtered.map((r) => (
                 <article
                   key={r._id}
-                  onClick={() => toggleSelect(r._id)}
+                  onClick={() => toggleSelect(r)}
                   className={`rounded-2xl border bg-white p-5 shadow-sm hover:shadow transition cursor-pointer ${
-                    selected.includes(r._id) ? "ring-2 ring-blue-500" : ""
+                    selected.find((x) => x._id === r._id) ? "ring-2 ring-blue-500" : ""
                   }`}
                   title="Click to select"
                 >
@@ -159,6 +165,21 @@ export const RecipeDash = () => {
               ))}
             </div>
           )}
+          <div>
+            <button onClick={() => setIsPopupOpen(true)}className="cosmic-button"> Checkout</button>
+
+            <Popup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)}>
+                <h2> Are these the correct recipes? </h2>
+                <div>
+                    {selected
+                        .map((r) => (
+                        <h2 key={r._id}>{r.name}</h2>
+                        ))}
+                </div>
+
+               <button onClick={() => handleCheckout()} className="cosmic-button"> Proceed to Checkout </button>
+            </Popup>
+          </div>
         </section>
       </div>
     </div>
@@ -172,4 +193,3 @@ const EmptyState = ({ text }) => (
   </div>
 );
 
-export default RecipeDash;
