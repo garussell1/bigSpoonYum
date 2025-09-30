@@ -11,7 +11,8 @@ function RecipeViewer({ selectedRecipe }) {
         //res = responsce
         const res = await fetch("http://localhost:5000/items");//http request to backend API endpoint
         const data = await res.json();//await means don't move until next line finishes this request
-
+        console.log("Fetched data:", data);//debug code
+        //example id: 68d6192bee5f5900881cd44d
         //find the recipe that matches what the user selected
 
         //TODO: whenever website and database are synced, set website to have same recipe IDs as database
@@ -20,6 +21,7 @@ function RecipeViewer({ selectedRecipe }) {
         const recipe = data.find(
           (item) => item.name.toLowerCase() === selectedRecipe.toLowerCase()
         );
+        // const recipe = data.find((item) => item._id === "68d6192bee5f5900881cd44d");
 
         if (recipe && recipe.ingredients) {
           // Pull only ingredient names into array
