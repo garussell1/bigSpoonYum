@@ -4,6 +4,7 @@ import { NotFound } from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import { useAuth0 } from "@auth0/auth0-react";
 import { RecipeDash } from "./pages/RecipeDash";
+import { Checkout } from "./pages/Checkout";
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Route path = "*" element={<NotFound />}/>
           <Route path = "/dashboard" element={<Dashboard />}/>
           <Route path = "/recipes" element={<RecipeDash />}/>
+          <Route path = "/checkout" element={<Checkout />}/>
         </Routes>
       </BrowserRouter>
     </>
