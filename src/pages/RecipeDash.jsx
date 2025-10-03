@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useMemo, useState } from "react";
 import Popup from "../components/Popup";
+import RecipeForm from "../components/RecipeForm";
 
 // Keep the same tag set used on Dashboard
 const TAGS = [
@@ -39,6 +40,7 @@ export const RecipeDash = () => {
     const [ recipes, setRecipes] = useState([])
     const navigate = useNavigate();
     const [ isPopupOpen, setIsPopupOpen] = useState(false);
+    const [ isRecipePopupOpen, setIsRecipePopupOpen] = useState(false);
     const handleCheckout = () => {
         localStorage.setItem("selectedRecipes", JSON.stringify(selected));
         navigate("/checkout");
@@ -63,6 +65,24 @@ export const RecipeDash = () => {
         : [...prev, recipe] // otherwise add recipe object
     );
     };
+
+    const handleAddRecipe = async (recipe) => {
+    try {
+      const res = await fetch("/api/recipes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(recipe),
+      });
+
+      if (!res.ok) throw new Error("Failed to add recipe");
+      const newRecipe = await res.json();
+      console.log("Recipe saved:", newRecipe);
+
+      setIsRecipePopupOpen(false); // close popup
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
 
   if (isLoading) return <div className="p-6">Loading…</div>;
@@ -118,6 +138,12 @@ export const RecipeDash = () => {
         {/* Grid of recipe cards (same card style as Dashboard RecipeCard) */}
         <section className="space-y-4">
           <h3 className="text-2xl font-semibold text-center">All Recipes</h3>
+
+            <button onClick={() => setIsRecipePopupOpen(true)}className="cosmic-button"> Add Recipe</button>
+
+            <Popup isOpen={isRecipePopupOpen} onClose={() => setIsRecipePopupOpen(false)}>
+              <RecipeForm onSubmit={handleAddRecipe} onCancel={() => setIsRecipePopupOpen(false)} />
+            </Popup>
 
           {filtered.length === 0 ? (
             <EmptyState text="No recipes match that filter." />
@@ -180,6 +206,7 @@ export const RecipeDash = () => {
 
                <button onClick={() => handleCheckout()} className="cosmic-button"> Proceed to Checkout </button>
             </Popup>
+
           </div>
         </section>
       </div>
