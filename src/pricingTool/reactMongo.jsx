@@ -1,53 +1,43 @@
 import { useState, useEffect } from "react";
 
-function RecipeViewer({ selectedRecipe }) {
-  const [ingredients, setIngredients] = useState([]);
+function PricingTool({ shoppingList }) {
+  // The shoppingList is passed directly as a prop, so we can render it.
+  // No need to fetch again.
 
-  useEffect(() => {
-    if (!selectedRecipe) return;
+  console.log("PricingTool received shoppingList:", shoppingList);
+  if (!shoppingList || shoppingList.length === 0) {
+    return <p>No ingredients in the shopping list.</p>;
+  }
+  else{
+    // Grab just the ingredient names and place them into a new array
+    const ingredientNames = shoppingList.map(ingredient => ingredient.name);
+    console.log("Array of ingredient names:", ingredientNames);
 
-    const fetchIngredients = async () => {//fetchIngredients function, aysnc added to optimize network requests
-      try {
-        //res = responsce
-        const res = await fetch("http://localhost:5000/items");//http request to backend API endpoint
-        const data = await res.json();//await means don't move until next line finishes this request
-        console.log("Fetched data:", data);//debug code
-        //example id: 68d6192bee5f5900881cd44d
-        //find the recipe that matches what the user selected
+    //initialize a string array of the same size
+    const searchQueries = new Array(ingredientNames.length);
 
-        //TODO: whenever website and database are synced, set website to have same recipe IDs as database
-        //WORKFLOW: recipe selected -> recipe id grabbed -> go to database and search for id ->
-              //grab ingredients for that id -> display ingredients on website
-        const recipe = data.find(
-          (item) => item.name.toLowerCase() === selectedRecipe.toLowerCase()
-        );
-        // const recipe = data.find((item) => item._id === "68d6192bee5f5900881cd44d");
+    //loop through ingredientNames to create the search strings
+    for (let i = 0; i < ingredientNames.length; i++) {
+      const ingredient = ingredientNames[i];
+      searchQueries[i] = `cost of ${ingredient} in aldi in tuscaloosa alabama`;
+    }
 
-        if (recipe && recipe.ingredients) {
-          // Pull only ingredient names into array
-          const names = recipe.ingredients.map((ing) => ing.name);
-          setIngredients(names);
-        } else {
-          setIngredients([]);
-        }
-      } catch (err) {
-        console.error("Error fetching items:", err);
-      }
-    };
-
-    fetchIngredients();
-  }, [selectedRecipe]);
-
+    // You can now see the array of search query strings in the console
+    console.log("Search query strings:", searchQueries);
+  }
   return (
     <div>
-      <h2>{selectedRecipe} Ingredients</h2>
+      <h2>Shopping List Ingredients</h2>
       <ul>
-        {ingredients.map((ing, i) => (
-          <li key={i}>{ing}</li>
+        {shoppingList.map((ing, i) => (
+          <li key={i}>
+            {ing.quantity} {ing.unit} {ing.name}
+          </li>
         ))}
       </ul>
     </div>
   );
 }
 
-export default RecipeViewer;
+export default PricingTool;
+
