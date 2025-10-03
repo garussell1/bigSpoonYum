@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PricingTool from "../pricingTool/reactMongo";
 
 export const Checkout = () => {
   const [selectedRecipes, setSelectedRecipes] = useState([]);
@@ -9,7 +10,6 @@ export const Checkout = () => {
     if (stored) {
       const recipes = JSON.parse(stored);
       setSelectedRecipes(recipes);
-
       // build combined shopping list
       setShoppingList(buildShoppingList(recipes));
       
@@ -24,24 +24,11 @@ export const Checkout = () => {
       {selectedRecipes.map((r) => (
         <div key={r._id} className="mb-4">
           <h3 className="font-medium">{r.name}</h3>
-          <ul className="list-disc pl-6 text-sm text-gray-700">
-            {r.ingredients.map((ing, idx) => (
-              <li key={idx}>
-                {ing.quantity} {ing.unit} {ing.name}
-              </li>
-            ))}
-          </ul>
         </div>
       ))}
 
-      <h2 className="text-xl font-semibold mt-8 mb-2">Shopping List</h2>
-      <ul className="list-disc pl-6 text-gray-800">
-        {shoppingList.map((ing, idx) => (
-          <li key={idx}>
-            {ing.quantity} {ing.unit} {ing.name}
-          </li>
-        ))}
-      </ul>
+      {/* Render the PricingTool component here and pass the shoppingList as a prop */}
+      <PricingTool shoppingList={shoppingList} />
     </div>
   );
 }
