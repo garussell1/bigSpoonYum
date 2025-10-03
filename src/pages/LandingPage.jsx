@@ -6,10 +6,21 @@ export const LandingPage = () => {
     const {isAuthenticated, user, loginWithRedirect, logout} = useAuth0();
     return(
         <div>
-            <h1> Welcome to Big Spoon Yum</h1>
-            <p> for all your dietary needs</p>
-                
-            <button className="cosmic-button"onClick={() => loginWithRedirect()}>Log In</button>
+            <div className="font-bold text-4xl text-primary">
+                <h1 > Welcome to </h1>
+                <div className="flex justify-center items-center">
+                    <img src="/logo.png" className=" h-100 w-150"/>
+                </div>
+            
+                <p> for all your dietary needs</p>
+
+            </div>
+            
+
+            <div className="flex justify-center items-center h-65">
+                <button className="cosmic-button"onClick={() => loginWithRedirect()}>Log In</button>
+            </div>
+            
         </div>
     );
 }

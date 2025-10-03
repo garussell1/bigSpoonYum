@@ -34,8 +34,8 @@ export const Home = () => {
                 Go to Recipe Dashboard
             </button>
             <button className="cosmic-button" onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>
-            Log Out
-        </button>
+                Log Out
+            </button>
         </div>
         );
     }
