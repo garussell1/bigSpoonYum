@@ -72,17 +72,18 @@ export const RecipeDash = () => {
     <div className="min-h-screen bg-[#e6f0f8]">
       {/* --- Navbar (matches Dashboard) --- */}
       <div className="flex justify-between items-center p-4 page-title">
-        <a href="/">
-          <h1 className="text-primary text-xl font-bold hover:text-blue-500">
+        <a href="/dashboard">
+          <img src="/logo.png" className="w-30 h-20 logo-hover-blue"/>
+          {/* <h1 className="text-primary text-xl font-bold hover:text-blue-500">
             BIG SPOON YUM
-          </h1>
+          </h1> */}
         </a>
-        <button
+        {/* <button
           className="cosmic-button"
           onClick={() => navigate("/dashboard")}
         >
           Dashboard
-        </button>
+        </button> */}
       </div>
 
       {/* --- Main Content (matches container spacing) --- */}

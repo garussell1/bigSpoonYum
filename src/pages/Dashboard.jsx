@@ -32,7 +32,7 @@ const MOCK_FAVORITES = {
 };
 
 const Dashboard = () => {
-  const { user, isAuthenticated, isLoading } = useAuth0();
+  const { user, isAuthenticated, isLoading, logout } = useAuth0();
   const [activeTag, setActiveTag] = useState("all");
   const navigate = useNavigate();
 
@@ -64,11 +64,16 @@ const toggleSelectRecipe = (id) => {
     <div className="min-h-screen bg-[#e6f0f8]">
       {/* --- Navbar --- */}
       <div className="flex justify-between items-center p-4 page-title">
-        <a href="/">
-          <h1 className="text-primary text-xl font-bold hover:text-blue-500">
+        <a href="/dashboard">
+          <img src="/logo.png" className="w-30 h-20 logo-hover-blue"/>
+          {/* <h1 className="text-primary text-xl font-bold hover:text-blue-500">
             BIG SPOON YUM
-          </h1>
+          </h1> */}
         </a>
+
+        <button className="cosmic-button" onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>
+                Log Out
+        </button>
 
         <button
           className="cosmic-button"

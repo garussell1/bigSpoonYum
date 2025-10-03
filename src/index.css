@@ -116,4 +116,16 @@
   text-align: center;  /* optional */
 }
 
+.logo-hover-blue {
+  /* Initial state: no change */
+  filter: none;
+  /* Smooth transition for the color change */
+  transition: filter 0.3s ease;
+}
+
+.logo-hover-blue:hover {
+  /* This filter combo is a common way to change a black element to a blue color */
+  filter: invert(30%) sepia(90%) saturate(3000%) hue-rotate(180deg) brightness(80%);
+}
+
 
