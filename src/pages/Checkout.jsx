@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import PricingTool from "../pricingTool/PromptBuilder";
+import PricingTool from "../pricingTool/reactMongo";
 
 export const Checkout = () => {
   const [selectedRecipes, setSelectedRecipes] = useState([]);

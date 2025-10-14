@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-//import { GoogleGenerativeAI } from "./GoogleGenerativeAI";
 
 function PricingTool({ shoppingList }) {
   // The shoppingList is passed directly as a prop, so we can render it.
+  // No need to fetch again.
 
   console.log("PricingTool received shoppingList:", shoppingList);
   if (!shoppingList || shoppingList.length === 0) {
     return <p>No ingredients in the shopping list.</p>;
   }
   else{
-    //Grab just the ingredient names and place them into a new array
+    // Grab just the ingredient names and place them into a new array
     const ingredientNames = shoppingList.map(ingredient => ingredient.name);
     console.log("Array of ingredient names:", ingredientNames);
 
@@ -22,10 +22,8 @@ function PricingTool({ shoppingList }) {
       searchQueries[i] = `cost of ${ingredient} in aldi in tuscaloosa alabama`;
     }
 
-    // // You can now see the array of search query strings in the console
-    // console.log("Search query strings:", searchQueries);
-    // fetchPrices(searchQueries);
-    // console.log("Fetched prices:", Response.text);
+    // You can now see the array of search query strings in the console
+    console.log("Search query strings:", searchQueries);
   }
   return (
     <div>
