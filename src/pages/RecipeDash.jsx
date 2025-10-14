@@ -49,6 +49,9 @@ export const RecipeDash = () => {
     const [activeTag, setActiveTag] = useState("all");
     const [selected, setSelected] = useState([]);
 
+    const [recipeToEdit, setRecipeToEdit] = useState(null);
+    const [recipeToDelete, setRecipeToDelete] = useState(null);
+
     const filtered = useMemo(() => {
     if (activeTag === "all") return recipes;
     return recipes.filter((r) =>
@@ -81,6 +84,27 @@ export const RecipeDash = () => {
       setIsRecipePopupOpen(false); // close popup
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleEditRecipe = (recipe) => {
+    setRecipeToEdit(recipe); // Set the recipe you want to edit
+    setIsRecipePopupOpen(true); // Open the popup with the form
+  };
+
+  const handleDeleteRecipe = async () => {
+    if (!recipeToDelete) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/items/${recipeToDelete._id}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) throw new Error('Failed to delete recipe');
+      setRecipes((prev) => prev.filter((r) => r._id !== recipeToDelete._id)); // Remove from UI
+      setRecipeToDelete(null); // Clear the state
+    } catch (err) {
+      console.error('Error deleting recipe:', err);
     }
   };
 
@@ -142,7 +166,29 @@ export const RecipeDash = () => {
             <button onClick={() => setIsRecipePopupOpen(true)}className="cosmic-button"> Add Recipe</button>
 
             <Popup isOpen={isRecipePopupOpen} onClose={() => setIsRecipePopupOpen(false)}>
-              <RecipeForm onSubmit={handleAddRecipe} onCancel={() => setIsRecipePopupOpen(false)} />
+              <RecipeForm
+                onSubmit={(updatedRecipe) => {
+                  if (recipeToEdit) {
+                    // Update the edited recipe in the list
+                    setRecipes((prev) =>
+                      prev.map((r) =>
+                        r._id === updatedRecipe._id ? updatedRecipe : r
+                      )
+                    );
+                  } else {
+                    // Add new recipe
+                    setRecipes((prev) => [...prev, updatedRecipe]);
+                  }
+
+                  setRecipeToEdit(null);
+                  setIsRecipePopupOpen(false);
+                }}
+                onCancel={() => {
+                  setRecipeToEdit(null);
+                  setIsRecipePopupOpen(false);
+                }}
+                initialData={recipeToEdit}
+              />
             </Popup>
 
           {filtered.length === 0 ? (
@@ -188,6 +234,12 @@ export const RecipeDash = () => {
                       {r.instructions}
                     </p>
                   )}
+
+                  {/* Edit and Delete Buttons */}
+                  <div className="mt-4 flex justify-between">
+                    <button onClick={() => handleEditRecipe(r)} className="text-blue-500 hover:underline">Edit</button>
+                    <button onClick={() => setRecipeToDelete(r)} className="text-red-500 hover:underline">Delete</button>
+                  </div>
                 </article>
               ))}
             </div>

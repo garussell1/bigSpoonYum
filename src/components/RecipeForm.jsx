@@ -1,13 +1,25 @@
 import { useState } from "react";
 
-export default function RecipeForm({ onSubmit, onCancel }) {
-  const [formData, setFormData] = useState({
-    name: "",
-    ingredients: [{ name: "", quantity: 0, unit: "" }],
-    filters: [],
-    instructions: "",
-    time: 0,
-    numberOfPeople: 1,
+export default function RecipeForm({ onSubmit, onCancel, initialData }) {
+  const [formData, setFormData] = useState(() => {
+    return initialData
+      ? {
+          ...initialData,
+          filters: Array.isArray(initialData.filters)
+            ? initialData.filters
+            : [],
+          ingredients: Array.isArray(initialData.ingredients)
+            ? initialData.ingredients
+            : [{ name: "", quantity: 0, unit: "" }],
+        }
+      : {
+          name: "",
+          ingredients: [{ name: "", quantity: 0, unit: "" }],
+          filters: [],
+          instructions: "",
+          time: 0,
+          numberOfPeople: 1,
+        };
   });
 
   const handleChange = (e) => {
@@ -43,36 +55,37 @@ export default function RecipeForm({ onSubmit, onCancel }) {
       filters: e.target.value.split(",").map((f) => f.trim()),
     });
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
 
   try {
-    // Send recipe data to backend
-    const response = await fetch("http://localhost:5000/items/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+    const url = initialData
+      ? `http://localhost:5000/items/${initialData._id}`  // Update if editing
+      : "http://localhost:5000/items/";                  // Create if adding new
+
+    const method = initialData ? "PUT" : "POST";
+
+    const response = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
     });
 
     if (!response.ok) {
       throw new Error("Failed to save recipe");
     }
 
-    // Optional: get saved recipe from server
     const savedRecipe = await response.json();
     console.log("Recipe saved:", savedRecipe);
 
-    // Close the popup
-    onCancel();
-    
-    // Optional: update frontend state if you keep a recipe list
-    // addRecipeToList(savedRecipe);
-
+    onSubmit(savedRecipe); // Notify parent (dashboard) to update state
+    onCancel(); // Close form
   } catch (error) {
     console.error(error);
     alert("There was an error saving the recipe.");
   }
 };
+
 
   
   return (
@@ -85,13 +98,12 @@ export default function RecipeForm({ onSubmit, onCancel }) {
                 {/* Name */}
                 <div className="flex flex-col">
                     <label className="font-medium">Name:</label>
-                    <input 
-                    type="text" 
-                    name="name" 
-                    value={formData.name} 
-                    onChange={handleChange} 
-                    required 
-                    className="border rounded p-2"
+                    <input
+                      type="text"
+                      placeholder="vegan, gluten-free"
+                      value={formData.filters.join(", ")}
+                      onChange={handleFiltersChange}
+                      className="border rounded p-2"
                     />
                 </div>
 
