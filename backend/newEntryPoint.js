@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const itemSchema = require('./newSchema');
+const User = require('./User');
+const FavTable = require('./FavTable');
 require('dotenv').config({ path: './config.env' });
 
 const connectDB = require('./newDatabaseTest'); // mongoose connection
@@ -22,6 +24,28 @@ app.get("/items", async (req, res) => {
   try {
     const items = await itemSchema.find();
     res.json(items);
+  } catch (err) {
+    console.error("Error fetching newSchema:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Display users at http://localhost:5000/users
+app.get("/users", async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    console.error("Error fetching newSchema:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Display favorites at http://localhost:5000/favorites
+app.get("/favorites", async (req, res) => {
+  try {
+    const favorites = await FavTable.find();
+    res.json(favorites);
   } catch (err) {
     console.error("Error fetching newSchema:", err);
     res.status(500).json({ error: "Server error" });
