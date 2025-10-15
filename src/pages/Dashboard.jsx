@@ -1,7 +1,7 @@
 // Dashboard.jsx
 import { useAuth0 } from "@auth0/auth0-react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const TAGS = [
   "all",
@@ -34,12 +34,26 @@ const MOCK_FAVORITES = {
 const Dashboard = () => {
   const { user, isAuthenticated, isLoading, logout } = useAuth0();
   const [activeTag, setActiveTag] = useState("all");
+  //const [ favorites, setFavorites] = useState([])
   const navigate = useNavigate();
 
   if (isLoading) return <div className="p-6">Loading…</div>;
   if (!isAuthenticated) return <Navigate to="/" replace />;
 
   const favorites = MOCK_FAVORITES;
+
+  // useEffect(() => {
+  //     const fetchRecipes = async () => {
+  //       try {
+  //         const res = await fetch("http://localhost:5000/items");
+  //         const data = await res.json();
+  //         setRecipes(data);
+  //       } catch (err) {
+  //         console.error("Error fetching recipes:", err);
+  //       }
+  //     };
+  //     fetchRecipes();
+  //     }, []);
 
   const filteredRecipes = useMemo(() => {
     if (activeTag === "all") return favorites.recipes;
@@ -128,7 +142,7 @@ const toggleSelectRecipe = (id) => {
         </section>
 
         {/* Favorite Lists */}
-        <section className="space-y-4">
+        {/* <section className="space-y-4">
           <h2 className="text-2xl font-semibold text-center">Favorite Custom Lists</h2>
           {favorites.lists.length === 0 ? (
             <EmptyState text="No favorite lists yet." />
@@ -139,7 +153,7 @@ const toggleSelectRecipe = (id) => {
               ))}
             </div>
           )}
-        </section>
+        </section> */}
       </div>
     </div>
   );

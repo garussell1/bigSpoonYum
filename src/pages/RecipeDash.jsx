@@ -4,6 +4,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useMemo, useState } from "react";
 import Popup from "../components/Popup";
 import RecipeForm from "../components/RecipeForm";
+import { Heart } from "lucide-react";
 
 // Keep the same tag set used on Dashboard
 const TAGS = [
@@ -37,7 +38,7 @@ export const RecipeDash = () => {
     }, []);
 
     const { isAuthenticated, user, isLoading } = useAuth0();
-    const [ recipes, setRecipes] = useState([])
+    const [ recipes, setRecipes] = useState([]);
     const navigate = useNavigate();
     const [ isPopupOpen, setIsPopupOpen] = useState(false);
     const [ isRecipePopupOpen, setIsRecipePopupOpen] = useState(false);
@@ -209,6 +210,7 @@ export const RecipeDash = () => {
                   {/* tag pills */}
                   {Array.isArray(r.filters) && r.filters.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2 justify-center">
+                      
                       {r.filters.map((tag) => (
                         <span
                           key={tag}
@@ -219,6 +221,9 @@ export const RecipeDash = () => {
                       ))}
                     </div>
                   )}
+                  <div>
+                    <Heart />
+                  </div>
 
                   {/* simple metadata */}
                   <p className="text-sm text-gray-600 mt-3">
