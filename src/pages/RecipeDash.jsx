@@ -42,6 +42,7 @@ export const RecipeDash = () => {
     const navigate = useNavigate();
     const [ isPopupOpen, setIsPopupOpen] = useState(false);
     const [ isRecipePopupOpen, setIsRecipePopupOpen] = useState(false);
+    const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
     const handleCheckout = () => {
         localStorage.setItem("selectedRecipes", JSON.stringify(selected));
         navigate("/checkout");
@@ -104,6 +105,7 @@ export const RecipeDash = () => {
       if (!res.ok) throw new Error('Failed to delete recipe');
       setRecipes((prev) => prev.filter((r) => r._id !== recipeToDelete._id)); // Remove from UI
       setRecipeToDelete(null); // Clear the state
+      setIsPopupOpen(false); // Close popup
     } catch (err) {
       console.error('Error deleting recipe:', err);
     }
@@ -243,7 +245,36 @@ export const RecipeDash = () => {
                   {/* Edit and Delete Buttons */}
                   <div className="mt-4 flex justify-between">
                     <button onClick={() => handleEditRecipe(r)} className="text-blue-500 hover:underline">Edit</button>
-                    <button onClick={() => setRecipeToDelete(r)} className="text-red-500 hover:underline">Delete</button>
+                    <button onClick={() => { setRecipeToDelete(r); setIsDeletePopupOpen(true) } } className="text-red-500 hover:underline">Delete</button>
+
+                    <Popup isOpen={isDeletePopupOpen} onClose={() => setIsDeletePopupOpen(false)} showCloseButton={false}>
+                      <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
+                      {recipeToDelete && (
+                        <div>
+                          <p>Are you sure you want to delete the recipe:</p>
+                          <p className="font-semibold mt-2">{recipeToDelete.name}</p>
+                        </div>
+                      )}
+
+                      <div className="mt-6 flex justify-between gap-4">
+                        <button
+                          onClick={() => {
+                            handleDeleteRecipe();
+                            setIsDeletePopupOpen(false);
+                          }}
+                          className="cosmic-button bg-red-600 hover:bg-red-700"
+                        >
+                          Yes, Delete
+                        </button>
+                        <button
+                          onClick={() => setIsDeletePopupOpen(false)}
+                          className="cosmic-button bg-gray-400 hover:bg-gray-500 flex justify-between"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </Popup>
+
                   </div>
                 </article>
               ))}
