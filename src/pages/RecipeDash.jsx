@@ -36,6 +36,9 @@ export const RecipeDash = () => {
     };
     fetchRecipes();
     }, []);
+    
+  
+    
 
     const { isAuthenticated, user, isLoading } = useAuth0();
     const [ recipes, setRecipes] = useState([]);
@@ -52,7 +55,30 @@ export const RecipeDash = () => {
 
     const [recipeToEdit, setRecipeToEdit] = useState(null);
     const [recipeToDelete, setRecipeToDelete] = useState(null);
+    
+    const [favorites, setFavorites] = useState([]);
 
+  // preload favorites
+  useEffect(() => {
+    const loadFavorites = async () => {
+      const res = await fetch(`http://localhost:5000/favorites`);
+      const data = await res.json();
+      setFavorites(data.map((f) => f.recipe_id));
+    };
+    if (user) loadFavorites();
+  }, [user]);
+
+    //add to favorites list
+    const toggleFavorites = (recipeId) => {
+      setFavorites((prev) =>
+        prev.includes(recipeId)
+        ? prev.filter((id) => id !== recipeId)
+        : [...prev, recipeId]
+      );
+    };
+
+
+    //filter recipes by tag
     const filtered = useMemo(() => {
     if (activeTag === "all") return recipes;
     return recipes.filter((r) =>
@@ -62,6 +88,7 @@ export const RecipeDash = () => {
     );
   }, [recipes, activeTag]);
 
+  //toggle the select function for recipes
   const toggleSelect = (recipe) => {
     setSelected((prev) =>
         prev.find((r) => r._id === recipe._id)
@@ -70,6 +97,7 @@ export const RecipeDash = () => {
     );
     };
 
+    //add recipe to database
     const handleAddRecipe = async (recipe) => {
     try {
       const res = await fetch("/api/recipes", {
@@ -108,6 +136,29 @@ export const RecipeDash = () => {
       console.error('Error deleting recipe:', err);
     }
   };
+
+ const handleFavoriteClick = async (recipeId) => {
+    const isFav = favorites.includes(recipeId);
+    toggleFavorites(recipeId); // update UI immediately for responsiveness
+
+    try {
+      const res = await fetch(`http://localhost:5000/favorites`, {
+        method: isFav ? "DELETE" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.sub,   // Auth0 user ID
+          recipe_id: recipeId, // match your schema
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update favorites");
+    } catch (err) {
+      console.error("Error updating favorites:", err);
+      // Revert UI if backend request fails
+      toggleFavorites(recipeId);
+    }
+};
+
 
 
   if (isLoading) return <div className="p-6">Loading…</div>;
@@ -221,9 +272,7 @@ export const RecipeDash = () => {
                       ))}
                     </div>
                   )}
-                  <div>
-                    <Heart />
-                  </div>
+                  
 
                   {/* simple metadata */}
                   <p className="text-sm text-gray-600 mt-3">
@@ -243,6 +292,22 @@ export const RecipeDash = () => {
                   {/* Edit and Delete Buttons */}
                   <div className="mt-4 flex justify-between">
                     <button onClick={() => handleEditRecipe(r)} className="text-blue-500 hover:underline">Edit</button>
+                    <div className="mt-3 flex justify-center">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // prevent toggling recipe selection
+                        handleFavoriteClick(r._id);
+                      }}
+                    >
+                      <Heart
+                        className={`w-6 h-6 transition-colors ${
+                          favorites.includes(r._id)
+                            ? "fill-red-500 text-red-500"
+                            : "text-gray-400 hover:text-red-400"
+                        }`}
+                      />
+                    </button>
+                </div>
                     <button onClick={() => setRecipeToDelete(r)} className="text-red-500 hover:underline">Delete</button>
                   </div>
                 </article>
