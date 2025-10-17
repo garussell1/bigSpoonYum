@@ -59,12 +59,13 @@ export const RecipeDash = () => {
     
     const [favorites, setFavorites] = useState([]);
 
+
   // preload favorites
   useEffect(() => {
     const loadFavorites = async () => {
       const res = await fetch(`http://localhost:5000/favorites`);
       const data = await res.json();
-      setFavorites(data.map((f) => f.recipe_id));
+      setFavorites(data.map((f) => user.sub == f.user_id ? f.recipe_id : null));
     };
     if (user) loadFavorites();
   }, [user]);
