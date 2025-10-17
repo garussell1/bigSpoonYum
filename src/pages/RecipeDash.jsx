@@ -310,7 +310,35 @@ export const RecipeDash = () => {
                       />
                     </button>
                 </div>
-                    <button onClick={() => setRecipeToDelete(r)} className="text-red-500 hover:underline">Delete</button>
+                    <button onClick={() => { setRecipeToDelete(r); setIsDeletePopupOpen(true) } } className="text-red-500 hover:underline">Delete</button>
+
+                    <Popup isOpen={isDeletePopupOpen} onClose={() => setIsDeletePopupOpen(false)} showCloseButton={false}>
+                      <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
+                      {recipeToDelete && (
+                        <div>
+                          <p>Are you sure you want to delete the recipe:</p>
+                          <p className="font-semibold mt-2">{recipeToDelete.name}</p>
+                        </div>
+                      )}
+
+                      <div className="mt-6 flex justify-between gap-4">
+                        <button
+                          onClick={() => {
+                            handleDeleteRecipe();
+                            setIsDeletePopupOpen(false);
+                          }}
+                          className="cosmic-button bg-red-600 hover:bg-red-700"
+                        >
+                          Yes, Delete
+                        </button>
+                        <button
+                          onClick={() => setIsDeletePopupOpen(false)}
+                          className="cosmic-button bg-gray-400 hover:bg-gray-500 flex justify-between"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </Popup>
                   </div>
                 </article>
               ))}
