@@ -100,8 +100,8 @@ const handleSubmit = async (e) => {
                     <label className="font-medium">Name:</label>
                     <input
                       type="text"
-                      placeholder="vegan, gluten-free"
-                      value={formData.filters.join(", ")}
+                      placeholder="Recipe name:"
+                      value={formData.name}
                       onChange={handleFiltersChange}
                       className="border rounded p-2"
                     />
