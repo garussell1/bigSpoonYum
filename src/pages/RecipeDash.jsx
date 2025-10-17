@@ -221,6 +221,7 @@ export const RecipeDash = () => {
               <RecipeForm
                 onSubmit={(updatedRecipe) => {
                   if (recipeToEdit) {
+                    console.log('Recipe: ', recipeToEdit)
                     // Update the edited recipe in the list
                     setRecipes((prev) =>
                       prev.map((r) =>
