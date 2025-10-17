@@ -2,6 +2,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
+import { Heart } from "lucide-react";
 
 const TAGS = [
   "all",
@@ -34,42 +35,112 @@ const MOCK_FAVORITES = {
 const Dashboard = () => {
   const { user, isAuthenticated, isLoading, logout } = useAuth0();
   const [activeTag, setActiveTag] = useState("all");
-  //const [ favorites, setFavorites] = useState([])
+  const [selected, setSelected] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+  const [recipes, setRecipes] = useState([]);
   const navigate = useNavigate();
 
   if (isLoading) return <div className="p-6">Loading…</div>;
   if (!isAuthenticated) return <Navigate to="/" replace />;
 
-  const favorites = MOCK_FAVORITES;
+  // preload favorites
+  useEffect(() => {
+    const loadFavorites = async () => {
+      const res = await fetch(`http://localhost:5000/favorites`);
+      const data = await res.json();
+      setFavorites(data.map((f) => f.recipe_id));
+    };
+    if (user) loadFavorites();
+  }, [user]);
 
-  // useEffect(() => {
-  //     const fetchRecipes = async () => {
-  //       try {
-  //         const res = await fetch("http://localhost:5000/items");
-  //         const data = await res.json();
-  //         setRecipes(data);
-  //       } catch (err) {
-  //         console.error("Error fetching recipes:", err);
-  //       }
-  //     };
-  //     fetchRecipes();
-  //     }, []);
+    //add to favorites list
+    const toggleFavorites = (recipeId) => {
+      setFavorites((prev) =>
+        prev.includes(recipeId)
+        ? prev.filter((id) => id !== recipeId)
+        : [...prev, recipeId]
+      );
+    };
 
-  const filteredRecipes = useMemo(() => {
-    if (activeTag === "all") return favorites.recipes;
-    return favorites.recipes.filter((r) =>
-      (r.tags || []).some((t) => t.toLowerCase() === activeTag.toLowerCase())
-    );
-  }, [activeTag, favorites.recipes]);
+  const handleFavoriteClick = async (recipeId) => {
+    const isFav = favorites.includes(recipeId);
+    toggleFavorites(recipeId); // update UI immediately for responsiveness
 
+    try {
+      const res = await fetch(`http://localhost:5000/favorites`, {
+        method: isFav ? "DELETE" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.sub,   // Auth0 user ID
+          recipe_id: recipeId, // match your schema
+        }),
+      });
 
-  const [selectedRecipes, setSelectedRecipes] = useState([]);
-
-const toggleSelectRecipe = (id) => {
-  setSelectedRecipes((prev) =>
-    prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-  );
+      if (!res.ok) throw new Error("Failed to update favorites");
+    } catch (err) {
+      console.error("Error updating favorites:", err);
+      // Revert UI if backend request fails
+      toggleFavorites(recipeId);
+    }
 };
+
+  // preload favorites
+  useEffect(() => {
+  const loadFavorites = async () => {
+    try {
+      // Fetch all favorites
+      const favRes = await fetch("http://localhost:5000/favorites");
+      const favData = await favRes.json(); // [{ user_id, recipe_id }, ...]
+
+      // Filter favorites for the logged-in user
+      const userFavorites = favData.filter((f) => f.user_id === user?.sub);
+
+      // Fetch all recipes
+      const recipeRes = await fetch("http://localhost:5000/items");
+      const allRecipes = await recipeRes.json(); // [{ _id, title, filters, calories, ... }]
+
+      // Match recipes that are in the user's favorites
+      const favoriteRecipes = allRecipes.filter((r) =>
+        userFavorites.some((f) => f.recipe_id === r._id)
+      );
+
+      // Save to state
+      setRecipes(favoriteRecipes);
+    } catch (err) {
+      console.error("Error loading favorites:", err);
+    }
+  };
+
+  if (user) loadFavorites();
+}, [user]);
+
+
+  //transition the favorite ids to recipes
+  // useEffect(() => {
+  //   const loadRecipes = async () => {
+  //     const res = await fetch('http://localhost:5000/items');
+  //     const data = await res.json();
+  //     setRecipes(data.map((f)))
+  //   }
+  // })
+
+  const filtered = useMemo(() => {
+    if (activeTag === "all") return recipes;
+    return recipes.filter((r) =>
+      (r.filters || []).some(
+        (t) => t.toLowerCase() === activeTag.toLowerCase()
+      )
+    );
+  }, [recipes, activeTag]);
+
+
+  
+
+  const toggleSelect = (id) => {
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
 
 
   
@@ -124,20 +195,76 @@ const toggleSelectRecipe = (id) => {
         {/* Favorite Recipes */}
         <section className="space-y-4">
           <h2 className="text-2xl font-semibold text-center">Your Favorite Recipes</h2>
-          {filteredRecipes.length === 0 ? (
-            <EmptyState text="No favorite recipes match that filter." />
+          {filtered.length === 0 ? (
+            <EmptyState text="No recipes match that filter." />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filteredRecipes.map((r) => (
-                <RecipeCard
-                  key={r.id}
-                  recipe={r}
-                  selected={selectedRecipes.includes(r.id)}
-                  onToggle={() => toggleSelectRecipe(r.id)}
-                />
+              {filtered.map((r) => (
+                <article
+                  key={r._id}
+                  onClick={() => toggleSelect(r)}
+                  className={`rounded-2xl border bg-white p-5 shadow-sm hover:shadow transition cursor-pointer ${
+                    selected.find((x) => x._id === r._id) ? "ring-2 ring-blue-500" : ""
+                  }`}
+                  title="Click to select"
+                >
+                  <h4 className="font-semibold text-lg">{r.name}</h4>
+
+                  {/* tag pills */}
+                  {Array.isArray(r.filters) && r.filters.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2 justify-center">
+                      
+                      {r.filters.map((tag) => (
+                        <span
+                          key={tag}
+                          className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-800"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  
+
+                  {/* simple metadata */}
+                  <p className="text-sm text-gray-600 mt-3">
+                    {typeof r.time === "number" ? `${r.time} min • ` : ""}
+                    {typeof r.numberOfPeople === "number"
+                      ? `${r.numberOfPeople} servings`
+                      : ""}
+                  </p>
+
+                  {/* instructions (short preview) */}
+                  {r.instructions && (
+                    <p className="text-sm text-gray-700 mt-3 line-clamp-3">
+                      {r.instructions}
+                    </p>
+                  )}
+
+                  {/* Edit and Delete Buttons */}
+                  <div className="mt-4 flex justify-between">
+                    {/* <button onClick={() => handleEditRecipe(r)} className="text-blue-500 hover:underline">Edit</button> */}
+                    <div className="mt-3 flex justify-center">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // prevent toggling recipe selection
+                        handleFavoriteClick(r._id);
+                      }}
+                    >
+                      <Heart
+                        className={`w-6 h-6 transition-colors ${
+                          favorites.includes(r._id)
+                            ? "fill-red-500 text-red-500"
+                            : "text-gray-400 hover:text-red-400"
+                        }`}
+                      />
+                    </button>
+                </div>
+                    {/* <button onClick={() => setRecipeToDelete(r)} className="text-red-500 hover:underline">Delete</button> */}
+                  </div>
+                </article>
               ))}
             </div>
-
           )}
         </section>
 

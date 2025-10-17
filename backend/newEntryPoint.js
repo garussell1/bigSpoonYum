@@ -16,6 +16,8 @@ connectDB();
 
 
 const app = express();
+// Will's fix
+// app.disable('x-powered-by');
 app.use(cors());
 app.use(express.json());
 
@@ -51,6 +53,52 @@ app.get("/favorites", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+// Add a favorite
+app.post("/favorites", async (req, res) => {
+  try {
+    const { user_id, recipe_id } = req.body;
+
+    if (!user_id || !recipe_id) {
+      return res.status(400).json({ error: "user_id and recipe_id are required" });
+    }
+
+    const existing = await FavTable.findOne({ user_id, recipe_id });
+    if (existing) {
+      return res.status(409).json({ message: "Already favorited" });
+    }
+
+    const newFav = new FavTable({ user_id, recipe_id });
+    await newFav.save();
+    res.status(201).json(newFav);
+  } catch (err) {
+    console.error("Error adding favorite:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Remove a favorite
+app.delete("/favorites", async (req, res) => {
+  try {
+    const { user_id, recipe_id } = req.body;
+
+    if (!user_id || !recipe_id) {
+      return res.status(400).json({ error: "user_id and recipe_id are required" });
+    }
+
+    const deleted = await FavTable.findOneAndDelete({ user_id, recipe_id });
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Favorite not found" });
+    }
+
+    res.json({ message: "Favorite removed" });
+  } catch (err) {
+    console.error("Error deleting favorite:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 
 // const Recipe = require("./newSchema");
 //
