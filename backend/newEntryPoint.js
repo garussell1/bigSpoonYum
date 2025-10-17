@@ -16,6 +16,8 @@ connectDB();
 
 
 const app = express();
+// Will's fix
+// app.disable('x-powered-by');
 app.use(cors());
 app.use(express.json());
 

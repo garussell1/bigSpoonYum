@@ -45,6 +45,7 @@ export const RecipeDash = () => {
     const navigate = useNavigate();
     const [ isPopupOpen, setIsPopupOpen] = useState(false);
     const [ isRecipePopupOpen, setIsRecipePopupOpen] = useState(false);
+    const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
     const handleCheckout = () => {
         localStorage.setItem("selectedRecipes", JSON.stringify(selected));
         navigate("/checkout");
@@ -95,7 +96,7 @@ export const RecipeDash = () => {
         ? prev.filter((r) => r._id !== recipe._id) // remove if already selected
         : [...prev, recipe] // otherwise add recipe object
     );
-    };
+  };
 
     //add recipe to database
     const handleAddRecipe = async (recipe) => {
@@ -132,6 +133,7 @@ export const RecipeDash = () => {
       if (!res.ok) throw new Error('Failed to delete recipe');
       setRecipes((prev) => prev.filter((r) => r._id !== recipeToDelete._id)); // Remove from UI
       setRecipeToDelete(null); // Clear the state
+      setIsPopupOpen(false); // Close popup
     } catch (err) {
       console.error('Error deleting recipe:', err);
     }
