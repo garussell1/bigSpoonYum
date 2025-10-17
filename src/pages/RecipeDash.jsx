@@ -95,7 +95,7 @@ export const RecipeDash = () => {
         ? prev.filter((r) => r._id !== recipe._id) // remove if already selected
         : [...prev, recipe] // otherwise add recipe object
     );
-    };
+  };
 
     //add recipe to database
     const handleAddRecipe = async (recipe) => {
