@@ -4,6 +4,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useMemo, useState } from "react";
 import Popup from "../components/Popup";
 import RecipeForm from "../components/RecipeForm";
+import { Heart } from "lucide-react";
 
 // Keep the same tag set used on Dashboard
 const TAGS = [
@@ -35,12 +36,16 @@ export const RecipeDash = () => {
     };
     fetchRecipes();
     }, []);
+    
+  
+    
 
     const { isAuthenticated, user, isLoading } = useAuth0();
-    const [ recipes, setRecipes] = useState([])
+    const [ recipes, setRecipes] = useState([]);
     const navigate = useNavigate();
     const [ isPopupOpen, setIsPopupOpen] = useState(false);
     const [ isRecipePopupOpen, setIsRecipePopupOpen] = useState(false);
+    const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
     const handleCheckout = () => {
         localStorage.setItem("selectedRecipes", JSON.stringify(selected));
         navigate("/checkout");
@@ -51,7 +56,30 @@ export const RecipeDash = () => {
 
     const [recipeToEdit, setRecipeToEdit] = useState(null);
     const [recipeToDelete, setRecipeToDelete] = useState(null);
+    
+    const [favorites, setFavorites] = useState([]);
 
+  // preload favorites
+  useEffect(() => {
+    const loadFavorites = async () => {
+      const res = await fetch(`http://localhost:5000/favorites`);
+      const data = await res.json();
+      setFavorites(data.map((f) => f.recipe_id));
+    };
+    if (user) loadFavorites();
+  }, [user]);
+
+    //add to favorites list
+    const toggleFavorites = (recipeId) => {
+      setFavorites((prev) =>
+        prev.includes(recipeId)
+        ? prev.filter((id) => id !== recipeId)
+        : [...prev, recipeId]
+      );
+    };
+
+
+    //filter recipes by tag
     const filtered = useMemo(() => {
     if (activeTag === "all") return recipes;
     return recipes.filter((r) =>
@@ -61,14 +89,16 @@ export const RecipeDash = () => {
     );
   }, [recipes, activeTag]);
 
+  //toggle the select function for recipes
   const toggleSelect = (recipe) => {
     setSelected((prev) =>
         prev.find((r) => r._id === recipe._id)
         ? prev.filter((r) => r._id !== recipe._id) // remove if already selected
         : [...prev, recipe] // otherwise add recipe object
     );
-    };
+  };
 
+    //add recipe to database
     const handleAddRecipe = async (recipe) => {
     try {
       const res = await fetch("/api/recipes", {
@@ -103,10 +133,34 @@ export const RecipeDash = () => {
       if (!res.ok) throw new Error('Failed to delete recipe');
       setRecipes((prev) => prev.filter((r) => r._id !== recipeToDelete._id)); // Remove from UI
       setRecipeToDelete(null); // Clear the state
+      setIsPopupOpen(false); // Close popup
     } catch (err) {
       console.error('Error deleting recipe:', err);
     }
   };
+
+ const handleFavoriteClick = async (recipeId) => {
+    const isFav = favorites.includes(recipeId);
+    toggleFavorites(recipeId); // update UI immediately for responsiveness
+
+    try {
+      const res = await fetch(`http://localhost:5000/favorites`, {
+        method: isFav ? "DELETE" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.sub,   // Auth0 user ID
+          recipe_id: recipeId, // match your schema
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update favorites");
+    } catch (err) {
+      console.error("Error updating favorites:", err);
+      // Revert UI if backend request fails
+      toggleFavorites(recipeId);
+    }
+};
+
 
 
   if (isLoading) return <div className="p-6">Loading…</div>;
@@ -209,6 +263,7 @@ export const RecipeDash = () => {
                   {/* tag pills */}
                   {Array.isArray(r.filters) && r.filters.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2 justify-center">
+                      
                       {r.filters.map((tag) => (
                         <span
                           key={tag}
@@ -219,6 +274,7 @@ export const RecipeDash = () => {
                       ))}
                     </div>
                   )}
+                  
 
                   {/* simple metadata */}
                   <p className="text-sm text-gray-600 mt-3">
@@ -238,7 +294,51 @@ export const RecipeDash = () => {
                   {/* Edit and Delete Buttons */}
                   <div className="mt-4 flex justify-between">
                     <button onClick={() => handleEditRecipe(r)} className="text-blue-500 hover:underline">Edit</button>
-                    <button onClick={() => setRecipeToDelete(r)} className="text-red-500 hover:underline">Delete</button>
+                    <div className="mt-3 flex justify-center">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // prevent toggling recipe selection
+                        handleFavoriteClick(r._id);
+                      }}
+                    >
+                      <Heart
+                        className={`w-6 h-6 transition-colors ${
+                          favorites.includes(r._id)
+                            ? "fill-red-500 text-red-500"
+                            : "text-gray-400 hover:text-red-400"
+                        }`}
+                      />
+                    </button>
+                </div>
+                    <button onClick={() => { setRecipeToDelete(r); setIsDeletePopupOpen(true) } } className="text-red-500 hover:underline">Delete</button>
+
+                    <Popup isOpen={isDeletePopupOpen} onClose={() => setIsDeletePopupOpen(false)} showCloseButton={false}>
+                      <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
+                      {recipeToDelete && (
+                        <div>
+                          <p>Are you sure you want to delete the recipe:</p>
+                          <p className="font-semibold mt-2">{recipeToDelete.name}</p>
+                        </div>
+                      )}
+
+                      <div className="mt-6 flex justify-between gap-4">
+                        <button
+                          onClick={() => {
+                            handleDeleteRecipe();
+                            setIsDeletePopupOpen(false);
+                          }}
+                          className="cosmic-button bg-red-600 hover:bg-red-700"
+                        >
+                          Yes, Delete
+                        </button>
+                        <button
+                          onClick={() => setIsDeletePopupOpen(false)}
+                          className="cosmic-button bg-gray-400 hover:bg-gray-500 flex justify-between"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </Popup>
                   </div>
                 </article>
               ))}
