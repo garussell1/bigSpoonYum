@@ -3,6 +3,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { Heart } from "lucide-react";
+import { Onboarding } from "./Onboarding";
 
 const TAGS = [
   "all",
@@ -38,10 +39,37 @@ const Dashboard = () => {
   const [selected, setSelected] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [recipes, setRecipes] = useState([]);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(null);
+  const [userLoaded, setUserLoaded] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [LWL, setLWL] = useState(0)
   const navigate = useNavigate();
 
   if (isLoading) return <div className="p-6">Loading…</div>;
   if (!isAuthenticated) return <Navigate to="/" replace />;
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const res = await fetch(`http://localhost:5000/users`);
+      const data = await res.json();
+      const matchedUser = data.find(f => user.sub == f.user_id);
+      setUserName(matchedUser ? matchedUser.name : "friend");
+      setHasCompletedOnboarding(matchedUser ? matchedUser.onboarded : false);
+      setUserLoaded(true);
+    }
+    loadUser();
+  }, [user]);
+
+  useEffect(() => {
+    if(user && userLoaded) {
+      if(!hasCompletedOnboarding){
+        setShowOnboarding(true);  
+      }else{
+        setShowOnboarding(false);
+      }
+    }
+  },[user, userLoaded, hasCompletedOnboarding]);
 
   // preload favorites
   useEffect(() => {
@@ -143,7 +171,7 @@ const Dashboard = () => {
   };
 
 
-  
+  console.log(user);
 
   return (
     <div className="min-h-screen bg-[#e6f0f8]">
@@ -171,9 +199,13 @@ const Dashboard = () => {
       {/* --- Main Content --- */}
       <div className="p-6 max-w-6xl mx-auto space-y-10">
 
+        {showOnboarding && <Onboarding />}
+        {console.log(userName)}
+
         {/* Recipe Database / Filters */}
         <div className="text-center mt-32">
-          <h2 className="font-bold text-3xl mb-6">Welcome, {user?.name || user?.email || "friend"}!</h2>
+          <h2 className="font-bold text-3xl mb-6">Welcome, {userName}!</h2>
+          
           <div className="flex flex-wrap justify-center gap-3 mb-10">
             {TAGS.map((filter) => (
               <button

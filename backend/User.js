@@ -5,6 +5,7 @@ const UserSchema = new mongoose.Schema({
     oauth_sub: String,
     name: String,
     email: String,
+    onboarded : Boolean,
 }, { collection: "User" });
 
 module.exports = mongoose.model('User', UserSchema);

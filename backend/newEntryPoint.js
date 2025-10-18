@@ -77,6 +77,28 @@ app.post("/favorites", async (req, res) => {
   }
 });
 
+// Add a User
+app.post("/users", async(req, res) => {
+  try{
+    const { user_id, oauth_sub, name, email, onboarded } = req.body;
+
+    if (!user_id || !oauth_sub || !name || !email || !onboarded){
+      return res.status(400).json({error: "user_id, oauth_sub, name, and email are all required"});
+    }
+    const existing = await User.findOne({user_id, oauth_sub, name, email, onboarded});
+    if(existing) {
+      return res.status(409).json({message: "Already a user"});
+    }
+
+    const newUser = new User({user_id, oauth_sub, name, email, onboarded});
+    await newUser.save();
+    res.status(201).json(newUser);
+  } catch(err){
+    console.error("Error adding user:", err);
+    res.status(500).json({error: "Server error"});
+  }
+});
+
 // Remove a favorite
 app.delete("/favorites", async (req, res) => {
   try {
