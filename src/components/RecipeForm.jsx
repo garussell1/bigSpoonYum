@@ -1,4 +1,5 @@
 import { useState } from "react";
+import FilterDropdown from "./FilterDropdown";
 
 export default function RecipeForm({ onSubmit, onCancel, initialData }) {
   const [formData, setFormData] = useState(() => {
@@ -49,11 +50,12 @@ export default function RecipeForm({ onSubmit, onCancel, initialData }) {
       ingredients: formData.ingredients.filter((_, i) => i !== index),
     });
 
-  const handleFiltersChange = (e) =>
-    setFormData({
-      ...formData,
-      filters: e.target.value.split(",").map((f) => f.trim()),
-    });
+    const handleFiltersChange = (selectedFilters) => {
+      setFormData({
+        ...formData,
+        filters: selectedFilters,
+      });
+    };
 
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -102,7 +104,7 @@ const handleSubmit = async (e) => {
                       type="text"
                       placeholder="Recipe name:"
                       value={formData.name}
-                      onChange={handleFiltersChange}
+                      onChange={handleChange}
                       className="border rounded p-2"
                     />
                 </div>
@@ -159,13 +161,8 @@ const handleSubmit = async (e) => {
 
                 {/* Filters */}
                 <div className="flex flex-col">
-                    <label className="font-medium">Filters (comma separated):</label>
-                    <input
-                    type="text"
-                    placeholder="vegan, gluten-free"
-                    onChange={handleFiltersChange}
-                    className="border rounded p-2"
-                    />
+                  <label className="font-medium mb-1">Filters:</label>
+                  <FilterDropdown formData={formData} handleFiltersChange={handleFiltersChange} />
                 </div>
 
                 {/* Instructions */}
