@@ -1,6 +1,25 @@
-// /api/recipes.js
+// /api/recipes.js  (Vercel Node serverless, ESM)
 import { ObjectId } from "mongodb";
-import { getDb } from "../lib/mongo";
+import { getDb } from "../lib/mongo.js";
+
+// parse JSON body for POST/PATCH/DELETE
+function readJson(req) {
+  return new Promise((resolve, reject) => {
+    let data = "";
+    req.on("data", c => (data += c));
+    req.on("end", () => {
+      try { resolve(data ? JSON.parse(data) : {}); }
+      catch (e) { reject(e); }
+    });
+    req.on("error", reject);
+  });
+}
+
+// parse query string (since req.query doesn't exist here)
+function getQueryParam(req, key) {
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  return url.searchParams.get(key);
+}
 
 export default async function handler(req, res) {
   try {
@@ -8,8 +27,7 @@ export default async function handler(req, res) {
     const col = db.collection("recipes");
 
     if (req.method === "GET") {
-      // GET /api/recipes?id=<id> or list
-      const { id } = req.query;
+      const id = getQueryParam(req, "id");
       if (id) {
         const doc = await col.findOne({ _id: new ObjectId(id) });
         return res.status(200).json(doc);
@@ -19,22 +37,20 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "POST") {
-      // POST body: { title, ingredients, instructions }
-      const body = JSON.parse(req.body || "{}");
+      const body = await readJson(req);
       const now = new Date();
-      const result = await col.insertOne({
+      const r = await col.insertOne({
         title: body.title || "Untitled",
         ingredients: body.ingredients || [],
         instructions: body.instructions || "",
         createdAt: now,
         updatedAt: now,
       });
-      return res.status(200).json({ insertedId: result.insertedId });
+      return res.status(200).json({ insertedId: r.insertedId });
     }
 
     if (req.method === "PATCH") {
-      // PATCH body: { id, ...fields }
-      const body = JSON.parse(req.body || "{}");
+      const body = await readJson(req);
       if (!body.id) return res.status(400).json({ error: "Missing id" });
       const { id, ...updates } = body;
       updates.updatedAt = new Date();
@@ -43,8 +59,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "DELETE") {
-      // DELETE body: { id }
-      const body = JSON.parse(req.body || "{}");
+      const body = await readJson(req);
       if (!body.id) return res.status(400).json({ error: "Missing id" });
       await col.deleteOne({ _id: new ObjectId(body.id) });
       return res.status(200).json({ ok: true });
