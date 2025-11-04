@@ -22,6 +22,19 @@ root.render(
     >
       <App />
     </Auth0Provider>
+    {/* <Auth0Provider
+      domain={import.meta.env.VITE_AUTH0_DOMAIN}
+      clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
+      authorizationParams={{
+        redirect_uri: window.location.origin + "/dashboard",
+      }}
+      onRedirectCallback={(appState) => {
+        const target = appState?.returnTo || "/dashboard";
+        window.history.replaceState({}, document.title, target);
+      }}
+    >
+      <App />
+    </Auth0Provider> */}
   </StrictMode>
 );
 
