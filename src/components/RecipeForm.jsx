@@ -1,4 +1,5 @@
 import { useState } from "react";
+import FilterDropdown from "./FilterDropdown";
 
 export default function RecipeForm({ onSubmit, onCancel, initialData }) {
   const [formData, setFormData] = useState(() => {
@@ -49,11 +50,12 @@ export default function RecipeForm({ onSubmit, onCancel, initialData }) {
       ingredients: formData.ingredients.filter((_, i) => i !== index),
     });
 
-  const handleFiltersChange = (e) =>
-    setFormData({
-      ...formData,
-      filters: e.target.value.split(",").map((f) => f.trim()),
-    });
+    const handleFiltersChange = (selectedFilters) => {
+      setFormData({
+        ...formData,
+        filters: selectedFilters,
+      });
+    };
 
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -90,7 +92,7 @@ const handleSubmit = async (e) => {
   
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-lg w-full max-w-xl p-6 overflow-y-auto">
+        <div className="bg-white rounded-lg shadow-lg w-full max-w-xl max-h-[90vh] p-6 overflow-y-auto">
     
             <form onSubmit={handleSubmit} className="recipe-form space-y-4 p-4">
                 <h2 className="text-xl font-semibold mb-2">Add a New Recipe</h2>
@@ -100,9 +102,10 @@ const handleSubmit = async (e) => {
                     <label className="font-medium">Name:</label>
                     <input
                       type="text"
+                      name="name"
                       placeholder="Recipe name:"
                       value={formData.name}
-                      onChange={handleFiltersChange}
+                      onChange={handleChange}
                       className="border rounded p-2"
                     />
                 </div>
@@ -159,13 +162,8 @@ const handleSubmit = async (e) => {
 
                 {/* Filters */}
                 <div className="flex flex-col">
-                    <label className="font-medium">Filters (comma separated):</label>
-                    <input
-                    type="text"
-                    placeholder="vegan, gluten-free"
-                    onChange={handleFiltersChange}
-                    className="border rounded p-2"
-                    />
+                  <label className="font-medium mb-1">Filters:</label>
+                  <FilterDropdown formData={formData} handleFiltersChange={handleFiltersChange} />
                 </div>
 
                 {/* Instructions */}
