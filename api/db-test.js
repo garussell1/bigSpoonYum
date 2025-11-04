@@ -1,12 +1,10 @@
 // /api/db-test.js
-import { getDb } from "../lib/mongo";
+import { getDb } from "../lib/mongo.js";
 
 export default async function handler(req, res) {
   try {
     const db = await getDb();
-    // ping via a no-op command
-    const admin = db.admin();
-    await admin.ping();
+    await db.command({ ping: 1 });
     return res.status(200).json({ ok: true });
   } catch (e) {
     console.error(e);
