@@ -1,30 +1,48 @@
-// /api/recipes.js  (Vercel Node serverless, ESM)
+// /api/recipes.js
 import { ObjectId } from "mongodb";
 import { getDb } from "../lib/mongo.js";
 
-// parse JSON body for POST/PATCH/DELETE
+// body parser
 function readJson(req) {
   return new Promise((resolve, reject) => {
     let data = "";
     req.on("data", c => (data += c));
     req.on("end", () => {
-      try { resolve(data ? JSON.parse(data) : {}); }
-      catch (e) { reject(e); }
+      try { resolve(data ? JSON.parse(data) : {}); } catch (e) { reject(e); }
     });
     req.on("error", reject);
   });
 }
 
-// parse query string (since req.query doesn't exist here)
+// query param helper
 function getQueryParam(req, key) {
   const url = new URL(req.url, `http://${req.headers.host}`);
   return url.searchParams.get(key);
 }
 
+async function pickCollection(db, preferred) {
+  // If client asked explicitly, use that
+  if (preferred) return db.collection(preferred);
+
+  // Try "recipes" first
+  const recipesCol = db.collection("recipes");
+  const recipesHas = await recipesCol.estimatedDocumentCount();
+  if (recipesHas > 0) return recipesCol;
+
+  // Fallback to "recipe"
+  const recipeCol = db.collection("recipe");
+  const recipeHas = await recipeCol.estimatedDocumentCount();
+  if (recipeHas >= 0) return recipeCol; // return even if 0, to keep name stable
+
+  // default
+  return recipesCol;
+}
+
 export default async function handler(req, res) {
   try {
     const db = await getDb();
-    const col = db.collection("recipes");
+    const requested = getQueryParam(req, "col");
+    const col = await pickCollection(db, requested);
 
     if (req.method === "GET") {
       const id = getQueryParam(req, "id");
