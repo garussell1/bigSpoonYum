@@ -52,7 +52,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     const loadUser = async () => {
-      const res = await fetch(`/api/users?col=users`);
+      const res = await fetch(`/api/collection?col=users`);
       const data = await res.json();
       const matchedUser = data.find(f => user.sub == f.user_id);
       setUserName(matchedUser ? matchedUser.name : "friend");
@@ -75,7 +75,7 @@ const Dashboard = () => {
   // preload favorites
   useEffect(() => {
     const loadFavorites = async () => {
-      const res = await fetch(`/api/favorites?col=favtables`);
+      const res = await fetch(`/api/collection?col=favtables`);
       const data = await res.json();
       setFavorites(data.map((f) => f.recipe_id));
     };
@@ -96,7 +96,7 @@ const Dashboard = () => {
     toggleFavorites(recipeId); // update UI immediately for responsiveness
 
     try {
-      const res = await fetch(`/api/favorites?col=favtables`, {
+      const res = await fetch(`/api/collection?col=favtables`, {
         method: isFav ? "DELETE" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -119,7 +119,7 @@ const Dashboard = () => {
   const loadFavorites = async () => {
     try {
       // Fetch all favorites
-      const favRes = await fetch("/api/favorites?col=favtables");
+      const favRes = await fetch("/api/collection?col=favtables");
       const favData = await favRes.json(); // [{ user_id, recipe_id }, ...]
 
       // Filter favorites for the logged-in user
