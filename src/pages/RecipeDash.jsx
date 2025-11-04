@@ -59,6 +59,9 @@ export const RecipeDash = () => {
     
     const [favorites, setFavorites] = useState([]);
 
+    const [selectedRecipe, setSelectedRecipe] = useState(null);
+
+
 
   // preload favorites
   useEffect(() => {
@@ -245,6 +248,42 @@ export const RecipeDash = () => {
                 initialData={recipeToEdit}
               />
             </Popup>
+            {/* Recipe Popup for checkout and such */}
+            <Popup
+              isOpen={!!selectedRecipe}
+              onClose={() => setSelectedRecipe(null)}
+            >
+              {selectedRecipe && (
+                <div>
+                  <h1 className="text-2xl font-bold">{selectedRecipe.name}</h1>
+                  <p>{selectedRecipe.instructions}</p>
+                  <list>
+                    
+                  </list>
+                  <button className="cosmic-button" onClick={() => toggleSelect(selectedRecipe)}>
+                      {selected.includes(selectedRecipe) ? "Remove from Cart" : "Add To Cart"}
+                  </button>
+                
+                  <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // prevent toggling recipe selection
+                        handleFavoriteClick(selectedRecipe._id);
+                      }}
+                    >
+                      <Heart
+                        className={`w-6 h-6 transition-colors ${
+                          favorites.includes(selectedRecipe._id)
+                            ? "fill-red-500 text-red-500"
+                            : "text-gray-400 hover:text-red-400"
+                        }`}
+                      />
+                  </button>
+                  
+                </div>
+                
+              )}
+            </Popup>
+
 
           {filtered.length === 0 ? (
             <EmptyState text="No recipes match that filter." />
@@ -253,7 +292,7 @@ export const RecipeDash = () => {
               {filtered.map((r) => (
                 <article
                   key={r._id}
-                  onClick={() => toggleSelect(r)}
+                  onClick={() => setSelectedRecipe(r)}
                   className={`rounded-2xl border bg-white p-5 shadow-sm hover:shadow transition cursor-pointer ${
                     selected.find((x) => x._id === r._id) ? "ring-2 ring-blue-500" : ""
                   }`}
@@ -286,15 +325,11 @@ export const RecipeDash = () => {
                   </p>
 
                   {/* instructions (short preview) */}
-                  {r.instructions && (
-                    <p className="text-sm text-gray-700 mt-3 line-clamp-3">
-                      {r.instructions}
-                    </p>
-                  )}
+                  
 
                   {/* Edit and Delete Buttons */}
                   <div className="mt-4 flex justify-between">
-                    <button onClick={() => handleEditRecipe(r)} className="text-blue-500 hover:underline">Edit</button>
+                    <button onClick={(e) => {e.stopPropagation(); setSelectedRecipe(null); handleEditRecipe(r);}} className="text-blue-500 hover:underline">Edit</button>
                     <div className="mt-3 flex justify-center">
                     <button
                       onClick={(e) => {
