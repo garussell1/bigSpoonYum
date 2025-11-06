@@ -3,15 +3,9 @@ import { Home } from "./pages/Home";
 import { NotFound } from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import { useAuth0 } from "@auth0/auth0-react";
-import { RecipeDash } from "./pages/RecipeDash";
+import { RecipeDash } from "./pages/RecipeDash.jsx";
 import { Checkout } from "./pages/Checkout";
 import { Onboarding } from "./pages/Onboarding";
-
-// src/App.jsx
-import RecipeDash from "./pages/RecipeDash.jsx";
-
-<Route path="/recipes" element={<RecipeDash />} />
-
 
 
 function App() {
