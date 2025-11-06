@@ -7,6 +7,12 @@ import { RecipeDash } from "./pages/RecipeDash";
 import { Checkout } from "./pages/Checkout";
 import { Onboarding } from "./pages/Onboarding";
 
+// src/App.jsx
+import RecipeDash from "./pages/RecipeDash.jsx";
+
+<Route path="/recipes" element={<RecipeDash />} />
+
+
 
 function App() {
   const { isLoading } = useAuth0();
