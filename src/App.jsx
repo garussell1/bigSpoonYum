@@ -5,7 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import { useAuth0 } from "@auth0/auth0-react";
 import { RecipeDash } from "./pages/RecipeDash";
 import { Checkout } from "./pages/Checkout";
-import { Onboarding } from "./pages/Onboarding";
+import { Onboarding } from "./pages/Onboarding.jsx";
 
 
 function App() {
