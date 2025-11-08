@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const itemSchema = require('./newSchema');
 const User = require('./User');
 const FavTable = require('./FavTable');
+const Itenerary = require('./Itenerary')
 require('dotenv').config({ path: './config.env' });
 
 const connectDB = require('./newDatabaseTest'); // mongoose connection
@@ -17,7 +18,7 @@ connectDB();
 
 const app = express();
 // Will's fix
-// app.disable('x-powered-by');
+app.disable('x-powered-by');
 app.use(cors());
 app.use(express.json());
 
@@ -54,6 +55,17 @@ app.get("/favorites", async (req, res) => {
   }
 });
 
+// Display Itenerary at http://localhost:5000/itenerary
+app.get("/itenerary", async (req, res) => {
+  try {
+    const itenerary = await Itenerary.find();
+    res.json(itenerary);
+  } catch (err) {
+    console.error("Error fetching newSchema:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 // Add a favorite
 app.post("/favorites", async (req, res) => {
   try {
@@ -73,6 +85,29 @@ app.post("/favorites", async (req, res) => {
     res.status(201).json(newFav);
   } catch (err) {
     console.error("Error adding favorite:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Add a itenerary
+app.post("/itenerary", async (req, res) => {
+  try {
+    const { user_id, name, shortDesc, recipeList  } = req.body;
+
+    if (!user_id || !shortDesc || !name || !recipeList ) {
+      return res.status(400).json({ error: "bro everything is required" });
+    }
+
+    const existing = await Itenerary.findOne({ user_id, shortDesc, name, recipeList });
+    if (existing) {
+      return res.status(409).json({ message: "Already an itenerary" });
+    }
+
+    const newItenerary = new Itenerary({ user_id, name, shortDesc, recipeList });
+    await newItenerary.save();
+    res.status(201).json(newItenerary);
+  } catch (err) {
+    console.error("Error adding itenerary:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
