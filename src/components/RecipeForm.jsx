@@ -92,7 +92,7 @@ const handleSubmit = async (e) => {
   
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-lg w-full max-w-xl p-6 overflow-y-auto">
+        <div className="bg-white rounded-lg shadow-lg w-full max-w-xl max-h-[90vh] p-6 overflow-y-auto">
     
             <form onSubmit={handleSubmit} className="recipe-form space-y-4 p-4">
                 <h2 className="text-xl font-semibold mb-2">Add a New Recipe</h2>
@@ -102,6 +102,7 @@ const handleSubmit = async (e) => {
                     <label className="font-medium">Name:</label>
                     <input
                       type="text"
+                      name="name"
                       placeholder="Recipe name:"
                       value={formData.name}
                       onChange={handleChange}

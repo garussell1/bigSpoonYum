@@ -4,6 +4,8 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { Heart } from "lucide-react";
 import { Onboarding } from "./Onboarding";
+import Popup from "../components/Popup";
+import RecipeForm from "../components/RecipeForm";
 
 
 const TAGS = [
@@ -45,6 +47,8 @@ const Dashboard = () => {
   const [userLoaded, setUserLoaded] = useState(false);
   const [userName, setUserName] = useState("");
   const [LWL, setLWL] = useState(0)
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+
   const navigate = useNavigate();
 
   if (isLoading) return <div className="p-6">Loading…</div>;
@@ -228,79 +232,106 @@ const Dashboard = () => {
 
         {/* Favorite Recipes */}
         <section className="space-y-4">
-          <h2 className="text-2xl font-semibold text-center">Your Favorite Recipes</h2>
-          {filtered.length === 0 ? (
-            <EmptyState text="No recipes match that filter." />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filtered.map((r) => (
-                <article
-                  key={r._id}
-                  onClick={() => toggleSelect(r)}
-                  className={`rounded-2xl border bg-white p-5 shadow-sm hover:shadow transition cursor-pointer ${
-                    selected.find((x) => x._id === r._id) ? "ring-2 ring-blue-500" : ""
-                  }`}
-                  title="Click to select"
-                >
-                  <h4 className="font-semibold text-lg">{r.name}</h4>
-
-                  {/* tag pills */}
-                  {Array.isArray(r.filters) && r.filters.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2 justify-center">
-                      
-                      {r.filters.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-800"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  
-
-                  {/* simple metadata */}
-                  <p className="text-sm text-gray-600 mt-3">
-                    {typeof r.time === "number" ? `${r.time} min • ` : ""}
-                    {typeof r.numberOfPeople === "number"
-                      ? `${r.numberOfPeople} servings`
-                      : ""}
-                  </p>
-
-                  {/* instructions (short preview) */}
-                  {r.instructions && (
-                    <p className="text-sm text-gray-700 mt-3 line-clamp-3">
-                      {r.instructions}
-                    </p>
-                  )}
-
-                  {/* Edit and Delete Buttons */}
-                  <div className="mt-4 flex justify-between">
-                    {/* <button onClick={() => handleEditRecipe(r)} className="text-blue-500 hover:underline">Edit</button> */}
-                    <div className="mt-3 flex justify-center">
+          <h3 className="text-2xl font-semibold text-center">Your Favorite Recipes</h3>
+              <Popup
+                isOpen={!!selectedRecipe}
+                onClose={() => setSelectedRecipe(null)}
+              >
+                {selectedRecipe && (
+                  <div>
+                    <h1 className="text-2xl font-bold">{selectedRecipe.name}</h1>
+                    <p>{selectedRecipe.instructions}</p>
+                    <list>
+                            
+                    </list>
+                    <button className="cosmic-button" onClick={() => toggleSelect(selectedRecipe)}>
+                      {selected.includes(selectedRecipe) ? "Remove from Cart" : "Add To Cart"}
+                    </button>
+                        
                     <button
                       onClick={(e) => {
                         e.stopPropagation(); // prevent toggling recipe selection
-                        handleFavoriteClick(r._id);
+                        handleFavoriteClick(selectedRecipe._id);
                       }}
                     >
                       <Heart
                         className={`w-6 h-6 transition-colors ${
-                          favorites.includes(r._id)
-                            ? "fill-red-500 text-red-500"
-                            : "text-gray-400 hover:text-red-400"
+                        favorites.includes(selectedRecipe._id)
+                        ? "fill-red-500 text-red-500"
+                        : "text-gray-400 hover:text-red-400"
                         }`}
                       />
                     </button>
-                </div>
-                    {/* <button onClick={() => setRecipeToDelete(r)} className="text-red-500 hover:underline">Delete</button> */}
+                  </div>  
+                    )}
+                  </Popup>
+
+                  {filtered.length === 0 ? (
+                    <EmptyState text="No recipes match that filter." />
+                    ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {filtered.map((r) => (
+                        <article
+                          key={r._id}
+                          onClick={() => setSelectedRecipe(r)}
+                          className={`rounded-2xl border bg-white p-5 shadow-sm hover:shadow transition cursor-pointer ${
+                            selected.find((x) => x._id === r._id) ? "ring-2 ring-blue-500" : ""
+                          }`}
+                          title="Click to select"
+                        >
+                          <h4 className="font-semibold text-lg">{r.name}</h4>
+        
+                          {/* tag pills */}
+                          {Array.isArray(r.filters) && r.filters.length > 0 && (
+                            <div className="mt-3 flex flex-wrap gap-2 justify-center">
+                              
+                              {r.filters.map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-800"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          
+        
+                          {/* simple metadata */}
+                          <p className="text-sm text-gray-600 mt-3">
+                            {typeof r.time === "number" ? `${r.time} min • ` : ""}
+                            {typeof r.numberOfPeople === "number"
+                              ? `${r.numberOfPeople} servings`
+                              : ""}
+                          </p>
+        
+                          {/* instructions (short preview) */}
+                          
+        
+                          {/* Edit and Delete Buttons */}
+                          <div className="mt-4 flex justify-between">
+                            <div className="mt-3 flex justify-center">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation(); // prevent toggling recipe selection
+                                handleFavoriteClick(r._id);
+                              }}
+                            >
+                              <Heart
+                                className={`w-6 h-6 transition-colors ${
+                                  favorites.includes(r._id)
+                                    ? "fill-red-500 text-red-500"
+                                    : "text-gray-400 hover:text-red-400"
+                                }`}
+                              />
+                            </button>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
                   </div>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
+                )}
+              </section>
 
         {/* Favorite Lists */}
         {/* <section className="space-y-4">
