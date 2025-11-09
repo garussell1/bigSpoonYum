@@ -6,16 +6,22 @@ import './index.css';
 import App from './App.jsx';
 
 const root = createRoot(document.getElementById('root'));
-const domainId = import.meta.env.VITE_AUTH0_DOMAINID; //remember to put a VITE_ before the name of your env variable or else it breaks
-const clientId = import.meta.env.VITE_AUTH0_CLIENTID;
+// src/main.jsx
+const domain  = import.meta.env.VITE_AUTH0_DOMAINID;      // e.g. dev-xxxxx.us.auth0.com
+const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;  // from Auth0 app
+
+if (!domain || !clientId) {
+  console.error("Missing VITE_AUTH0_DOMAIN or VITE_AUTH0_CLIENT_ID");
+}
 
 root.render(
   <StrictMode>
-  <Auth0Provider
-      domain =  {domainId}
-      clientId= {clientId}
+    <Auth0Provider
+      domain={domain}
+      clientId={clientId}
       authorizationParams={{
         redirect_uri: `${window.location.origin}/dashboard`,
+        // audience: import.meta.env.VITE_AUTH0_AUDIENCE, // if you use an API
       }}
       cacheLocation="localstorage"
       useRefreshTokens={true}

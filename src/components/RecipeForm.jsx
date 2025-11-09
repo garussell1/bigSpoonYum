@@ -102,6 +102,7 @@ const handleSubmit = async (e) => {
                     <label className="font-medium">Name:</label>
                     <input
                       type="text"
+                      name="name"
                       placeholder="Recipe name:"
                       value={formData.name}
                       onChange={handleChange}
