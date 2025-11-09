@@ -6,41 +6,25 @@ import './index.css';
 import App from './App.jsx';
 
 const root = createRoot(document.getElementById('root'));
-// src/main.jsx
-const domain  = import.meta.env.VITE_AUTH0_DOMAINID;      // e.g. dev-xxxxx.us.auth0.com
-const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;  // from Auth0 app
+const domainId = import.meta.env.VITE_AUTH0_DOMAINID; //remember to put a VITE_ before the name of your env variable or else it breaks
+const clientId = import.meta.env.VITE_AUTH0_CLIENTID;
 
-if (!domain || !clientId) {
-  console.error("Missing VITE_AUTH0_DOMAIN or VITE_AUTH0_CLIENT_ID");
-}
 
+console.log('Auth0 Domain:', domainId); // useful debug line
+console.log('Auth0 Client:', clientId);
 root.render(
   <StrictMode>
-    <Auth0Provider
-      domain={domain}
-      clientId={clientId}
+  <Auth0Provider
+      domain =  {domainId}
+      clientId= {clientId}
       authorizationParams={{
         redirect_uri: `${window.location.origin}/dashboard`,
-        // audience: import.meta.env.VITE_AUTH0_AUDIENCE, // if you use an API
       }}
       cacheLocation="localstorage"
       useRefreshTokens={true}
     >
       <App />
     </Auth0Provider>
-    {/* <Auth0Provider
-      domain={import.meta.env.VITE_AUTH0_DOMAIN}
-      clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
-      authorizationParams={{
-        redirect_uri: window.location.origin + "/dashboard",
-      }}
-      onRedirectCallback={(appState) => {
-        const target = appState?.returnTo || "/dashboard";
-        window.history.replaceState({}, document.title, target);
-      }}
-    >
-      <App />
-    </Auth0Provider> */}
   </StrictMode>
 );
 

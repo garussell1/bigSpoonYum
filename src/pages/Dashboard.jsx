@@ -7,7 +7,6 @@ import { Onboarding } from "./Onboarding";
 import Popup from "../components/Popup";
 import RecipeForm from "../components/RecipeForm";
 
-
 const TAGS = [
   "all",
   "Vegetarian",
@@ -57,7 +56,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     const loadUser = async () => {
-      const res = await fetch(`/api/collection?col=users`);
+      const res = await fetch(`http://localhost:5000/users`);
       const data = await res.json();
       const matchedUser = data.find(f => user.sub == f.user_id);
       setUserName(matchedUser ? matchedUser.name : "friend");
@@ -80,7 +79,7 @@ const Dashboard = () => {
   // preload favorites
   useEffect(() => {
     const loadFavorites = async () => {
-      const res = await fetch(`/api/collection?col=favtables`);
+      const res = await fetch(`http://localhost:5000/favorites`);
       const data = await res.json();
       setFavorites(data.map((f) => f.recipe_id));
     };
@@ -101,15 +100,14 @@ const Dashboard = () => {
     toggleFavorites(recipeId); // update UI immediately for responsiveness
 
     try {
-      const res = await fetch(`/api/collection?col=favtables`, {
+      const res = await fetch(`http://localhost:5000/favorites`, {
         method: isFav ? "DELETE" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          user_id: user.sub,
-          recipe_id: recipeId,
+          user_id: user.sub,   // Auth0 user ID
+          recipe_id: recipeId, // match your schema
         }),
       });
-
 
       if (!res.ok) throw new Error("Failed to update favorites");
     } catch (err) {
@@ -124,14 +122,14 @@ const Dashboard = () => {
   const loadFavorites = async () => {
     try {
       // Fetch all favorites
-      const favRes = await fetch("/api/collection?col=favtables");
+      const favRes = await fetch("http://localhost:5000/favorites");
       const favData = await favRes.json(); // [{ user_id, recipe_id }, ...]
 
       // Filter favorites for the logged-in user
       const userFavorites = favData.filter((f) => f.user_id === user?.sub);
 
       // Fetch all recipes
-      const recipeRes = await fetch(`/api/recipes?col=recipe`);
+      const recipeRes = await fetch("http://localhost:5000/items");
       const allRecipes = await recipeRes.json(); // [{ _id, title, filters, calories, ... }]
 
       // Match recipes that are in the user's favorites
@@ -153,7 +151,7 @@ const Dashboard = () => {
   //transition the favorite ids to recipes
   // useEffect(() => {
   //   const loadRecipes = async () => {
-  //     const recipeRes = await fetch(`/api/recipes?col=recipe`);
+  //     const res = await fetch('http://localhost:5000/items');
   //     const data = await res.json();
   //     setRecipes(data.map((f)))
   //   }
