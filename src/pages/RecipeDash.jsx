@@ -27,6 +27,7 @@ export const RecipeDash = () => {
     useEffect(() => {
     const fetchRecipes = async () => {
       try {
+        // const res = await fetch("https://big-spoon-yum-copy.vercel.app/api/recipes");
         const res = await fetch("http://localhost:5000/items");
         const data = await res.json();
         setRecipes(data);
@@ -130,7 +131,8 @@ export const RecipeDash = () => {
     if (!recipeToDelete) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/items/${recipeToDelete._id}`, {
+      // const res = await fetch(`https://big-spoon-yum-copy.vercel.app/api/recipes/${recipeToDelete._id}`, {
+      const res = await fetch(`http://localhost:5000/items/${recipeToDelete._id}` ,{
         method: 'DELETE',
       });
 
