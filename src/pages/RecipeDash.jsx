@@ -203,7 +203,7 @@ export const RecipeDash = () => {
                <button onClick={() => handleCheckout()} className="cosmic-button"> Proceed to Checkout </button>
             </Popup>
 
-          </div>
+        </div>
       </div>
 
       {/* --- Main Content (matches container spacing) --- */}

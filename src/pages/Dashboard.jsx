@@ -47,9 +47,16 @@ const Dashboard = () => {
   const [userName, setUserName] = useState("");
   const [LWL, setLWL] = useState(0)
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  
   
 
   const navigate = useNavigate();
+
+  const handleCheckout = () => {
+        localStorage.setItem("selectedRecipes", JSON.stringify(selected));
+        navigate("/checkout");
+    }
 
   if (isLoading) return <div className="p-6">Loading…</div>;
   if (!isAuthenticated) return <Navigate to="/" replace />;
@@ -345,6 +352,22 @@ const Dashboard = () => {
             </div>
           )}
         </section> */}
+      </div>
+      <div>
+        <button onClick={() => setIsPopupOpen(true)}className="cosmic-button"> Checkout</button>
+      
+          <Popup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)}>
+            <h2> Are these the correct recipes? </h2>
+              <div>
+                {selected
+                  .map((r) => (
+                  <h2 key={r._id}>{r.name}</h2>
+                ))}
+              </div>
+      
+            <button onClick={() => handleCheckout()} className="cosmic-button"> Proceed to Checkout </button>
+          </Popup>
+      
       </div>
     </div>
   );
