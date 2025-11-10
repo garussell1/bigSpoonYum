@@ -188,6 +188,22 @@ export const RecipeDash = () => {
         >
           Dashboard
         </button> */}
+        <div>
+            <button onClick={() => setIsPopupOpen(true)}className="cosmic-button"> Checkout</button>
+
+            <Popup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)}>
+                <h2> Are these the correct recipes? </h2>
+                <div>
+                    {selected
+                        .map((r) => (
+                        <h2 key={r._id}>{r.name}</h2>
+                        ))}
+                </div>
+
+               <button onClick={() => handleCheckout()} className="cosmic-button"> Proceed to Checkout </button>
+            </Popup>
+
+          </div>
       </div>
 
       {/* --- Main Content (matches container spacing) --- */}
