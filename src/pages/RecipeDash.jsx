@@ -176,12 +176,12 @@ export const RecipeDash = () => {
     <div className="min-h-screen bg-[#e6f0f8]">
       {/* --- Navbar (matches Dashboard) --- */}
       <div className="flex justify-between items-center p-4 page-title">
-        <a href="/dashboard">
+        <button onClick={() => navigate("/dashboard")}>
          <img src={`${import.meta.env.BASE_URL}logo.png`} className="w-30 h-20 logo-hover-blue"/>
           {/* <h1 className="text-primary text-xl font-bold hover:text-blue-500">
             BIG SPOON YUM
           </h1> */}
-        </a>
+        </button>
         {/* <button
           className="cosmic-button"
           onClick={() => navigate("/dashboard")}
