@@ -62,8 +62,8 @@ const handleSubmit = async (e) => {
 
   try {
     const url = initialData
-      ? `https://bsy-backend.vercel.app/api/items/${initialData._id}`  // Update if editing
-      : "https://bsy-backend.vercel.app/api/items/";                  // Create if adding new
+      ? `https://bsy-backend.vercel.app/api/items${initialData._id}`  // Update if editing
+      : "https://bsy-backend.vercel.app/api/items";                  // Create if adding new
 
     const method = initialData ? "PUT" : "POST";
 
