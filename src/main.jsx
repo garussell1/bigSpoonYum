@@ -15,7 +15,7 @@ root.render(
       domain =  {domainId}
       clientId= {clientId}
       authorizationParams={{
-        redirect_uri: `${window.location.origin}${import.meta.env.BASE_URL}dashboard`,
+        redirect_uri: `${window.location.origin}${import.meta.env.BASE_URL}#/dashboard`,
       }}
       cacheLocation="localstorage"
       useRefreshTokens={true}
