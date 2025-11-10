@@ -183,7 +183,7 @@ const Dashboard = () => {
       {/* --- Navbar --- */}
       <div className="flex justify-between items-center p-4 page-title">
         <a href="/dashboard">
-          <img src="/logo.png" className="w-30 h-20 logo-hover-blue"/>
+          <img src={`${import.meta.env.BASE_URL}logo.png`} className="w-30 h-20 logo-hover-blue"/>
           {/* <h1 className="text-primary text-xl font-bold hover:text-blue-500">
             BIG SPOON YUM
           </h1> */}

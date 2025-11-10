@@ -9,7 +9,7 @@ export const LandingPage = () => {
             <div className="font-bold text-4xl text-primary">
                 <h1 > Welcome to </h1>
                 <div className="flex justify-center items-center">
-                    <img src="/logo.png" className=" h-100 w-150"/>
+                    <img src={`${import.meta.env.BASE_URL}logo.png`} className=" h-100 w-150"/>
                 </div>
             
                 <p> for all your dietary needs</p>

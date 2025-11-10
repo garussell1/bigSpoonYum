@@ -1,5 +1,5 @@
 // src/App.jsx
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import { Home }  from "./pages/Home";
 import { NotFound }  from "./pages/NotFound";
 import  Dashboard from "./pages/Dashboard.jsx";
@@ -13,7 +13,7 @@ function App() {
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
         <Route index element={<Home />} />
         <Route path="*" element={<NotFound />} />
@@ -22,7 +22,7 @@ function App() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/info" element={<Onboarding />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 
