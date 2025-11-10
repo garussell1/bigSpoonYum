@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { fetchPrices } from "./APIcaller";
-//import { GoogleGenerativeAI } from "./GoogleGenerativeAI";
 
 function PricingTool({ shoppingList }){
   // The shoppingList is passed directly as a prop, so we can render it.
