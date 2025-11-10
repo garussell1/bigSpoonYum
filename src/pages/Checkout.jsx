@@ -138,11 +138,16 @@ export const Checkout = () => {
 function buildShoppingList(recipes, numPeople) {
   const list = {};
   recipes.forEach((recipe) => {
+    // default to 10 people if no info provided
     const baseServings = recipe.numberOfPeople || 10;
     const scaleFactor = numPeople / baseServings;
     recipe.ingredients.forEach((ing) => {
       const key = `${ing.name}-${ing.unit || ""}`;
-      const scaledQuantity = ing.quantity * scaleFactor;
+      // round scaled values to 2 decimal places
+      const rawScaledQuantity = ing.quantity * scaleFactor;
+      console.log(rawScaledQuantity);
+      const scaledQuantity = rawScaledQuantity.toFixed(2);
+      console.log(scaledQuantity)
       if (!list[key]) {
         list[key] = { ...ing, quantity: scaledQuantity };
       } else {
