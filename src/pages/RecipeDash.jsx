@@ -131,7 +131,7 @@ export const RecipeDash = () => {
     if (!recipeToDelete) return;
 
     try {
-      const res = await fetch(`https://bsy-backend.vercel.app/api/items${recipeToDelete._id}`, {
+      const res = await fetch(`https://bsy-backend.vercel.app/api/items?id=${initialData._id}`, {
       //const res = await fetch(`http://localhost:5000/items/${recipeToDelete._id}` ,{
         method: 'DELETE',
       });
