@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { fetchPrices } from "./APIcaller";
-//import { GoogleGenerativeAI } from "./GoogleGenerativeAI";
 
 function PricingTool({ shoppingList }){
   // The shoppingList is passed directly as a prop, so we can render it.
@@ -22,7 +21,6 @@ function PricingTool({ shoppingList }){
       try {
         //Build the prompts inside the effect, now that we have the shoppingList
         const ingredientNames = shoppingList.map(ingredient => ingredient.name);
-        console.log("Ingredient Names:", ingredientNames);//DEBUG
         const constructedPrompts = ingredientNames.map(name => `${name} from aldi in tuscaloosa alabama`);
 
         console.log("Constructed Prompts:", constructedPrompts);//DEBUG
@@ -41,11 +39,20 @@ function PricingTool({ shoppingList }){
         setLoading(false);
       }
     };
-
     //Call the function to start the process
     getPricesFromServer();
-
   }, [shoppingList]);
+
+  //sum of total price function exists outside of useEffect to recalculate on prices change
+  //
+  const totalPrice = prices.reduce((sum,prices) => {
+    const cleanPrice = String(prices).replace(/[$,\s]/g,'');//remove $ and other chars
+    const priceValue = parseFloat(cleanPrice);//convert to float
+
+    if (!isNaN(priceValue)){//add priceValue to sum only if it's a valid number
+      return sum + priceValue;
+    }
+  }, 0).toFixed(2);//keep two decimals
 
   if (!shoppingList || shoppingList.length === 0) {
     return <p>Waiting for shopping list...</p>;
@@ -65,6 +72,15 @@ function PricingTool({ shoppingList }){
           </li>
         ))}
       </ul>
+      {/* Display the Total Price */}
+      {prices.length > 0 && !loading && (
+        <>
+          <hr className="my-2 border-t border-gray-300" />
+          <p className="text-xl font-bold mt-2">
+            Total Estimated Price: ${totalPrice}
+          </p>
+        </>
+      )}
     </div>
   );
 }

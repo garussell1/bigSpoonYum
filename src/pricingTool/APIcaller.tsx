@@ -3,23 +3,24 @@
 //  * @param {string[]} constructedPrompts - An array of item prompts.
 //  * @returns {Promise<string[]>} A promise that resolves to an array of price strings.
 //  */
+//this function calls the Express server endpoint to get price estimates
 export async function fetchPrices(constructedPrompts: string[]) {
   //API endpoint we call to, defined in  Express server's endpoint
   const API_URL = "https://bsy-backend.vercel.app/api/pricing"; 
 
+  console.log("Constructed Prompts from API:", constructedPrompts);//DEBUG
   if (!constructedPrompts || constructedPrompts.length === 0) 
-{
+  {
     return [];
   }// If no prompts, return empty array
 
-  try {
+  try{
     //fetch sends website(post) request
     const response = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify({ searchQueries: constructedPrompts }),
       //stringify converts JS to JSON string 
       //"FETCH" only sends plaintext, that is why we must convert
