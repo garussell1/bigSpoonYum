@@ -27,8 +27,8 @@ export const RecipeDash = () => {
     useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        // const res = await fetch("https://big-spoon-yum-copy.vercel.app/api/recipes");
-        const res = await fetch("http://localhost:5000/items");
+        const res = await fetch("https://bsy-backend.vercel.app/api/items");
+        //const res = await fetch("http://localhost:5000/items");
         const data = await res.json();
         setRecipes(data);
       } catch (err) {
@@ -67,7 +67,7 @@ export const RecipeDash = () => {
   // preload favorites
   useEffect(() => {
     const loadFavorites = async () => {
-      const res = await fetch(`http://localhost:5000/favorites`);
+      const res = await fetch(`https://bsy-backend.vercel.app/api/favorites`);
       const data = await res.json();
       setFavorites(data.map((f) => user.sub == f.user_id ? f.recipe_id : null));
     };
@@ -131,8 +131,8 @@ export const RecipeDash = () => {
     if (!recipeToDelete) return;
 
     try {
-      // const res = await fetch(`https://big-spoon-yum-copy.vercel.app/api/recipes/${recipeToDelete._id}`, {
-      const res = await fetch(`http://localhost:5000/items/${recipeToDelete._id}` ,{
+      const res = await fetch(`https://bsy-backend.vercel.app/api/items${recipeToDelete._id}`, {
+      //const res = await fetch(`http://localhost:5000/items/${recipeToDelete._id}` ,{
         method: 'DELETE',
       });
 
@@ -150,7 +150,7 @@ export const RecipeDash = () => {
     toggleFavorites(recipeId); // update UI immediately for responsiveness
 
     try {
-      const res = await fetch(`http://localhost:5000/favorites`, {
+      const res = await fetch(`https://bsy-backend.vercel.app/api/favorites`, {
         method: isFav ? "DELETE" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

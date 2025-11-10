@@ -5,7 +5,7 @@
 //  */
 export async function fetchPrices(constructedPrompts: string[]) {
   //API endpoint we call to, defined in  Express server's endpoint
-  const API_URL = "http://localhost:5001/api/get-prices"; 
+  const API_URL = "https://bsy-backend.vercel.app/api/pricing"; 
 
   if (!constructedPrompts || constructedPrompts.length === 0) 
 {

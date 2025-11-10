@@ -9,9 +9,6 @@ const root = createRoot(document.getElementById('root'));
 const domainId = import.meta.env.VITE_AUTH0_DOMAINID; //remember to put a VITE_ before the name of your env variable or else it breaks
 const clientId = import.meta.env.VITE_AUTH0_CLIENTID;
 
-
-console.log('Auth0 Domain:', domainId); // useful debug line
-console.log('Auth0 Client:', clientId);
 root.render(
   <StrictMode>
   <Auth0Provider

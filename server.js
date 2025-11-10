@@ -5,7 +5,7 @@ import {GoogleGenerativeAI} from "@google/generative-ai";
 
 const app = express();
 // Will's fix
-// app.disable('x-powered-by');
+app.disable('x-powered-by');
 const port = 5001; // Using a different port from your React app
 
 app.use(cors()); //React talks to server

@@ -56,7 +56,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     const loadUser = async () => {
-      const res = await fetch(`http://localhost:5000/users`);
+      const res = await fetch(`https://bsy-backend.vercel.app/api/users`);
       const data = await res.json();
       const matchedUser = data.find(f => user.sub == f.user_id);
       setUserName(matchedUser ? matchedUser.name : "friend");
@@ -79,7 +79,7 @@ const Dashboard = () => {
   // preload favorites
   useEffect(() => {
     const loadFavorites = async () => {
-      const res = await fetch(`http://localhost:5000/favorites`);
+      const res = await fetch(`https://bsy-backend.vercel.app/api/favorites`);
       const data = await res.json();
       setFavorites(data.map((f) => f.recipe_id));
     };
@@ -100,7 +100,7 @@ const Dashboard = () => {
     toggleFavorites(recipeId); // update UI immediately for responsiveness
 
     try {
-      const res = await fetch(`http://localhost:5000/favorites`, {
+      const res = await fetch(`https://bsy-backend.vercel.app/api/favorites`, {
         method: isFav ? "DELETE" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -122,14 +122,14 @@ const Dashboard = () => {
   const loadFavorites = async () => {
     try {
       // Fetch all favorites
-      const favRes = await fetch("http://localhost:5000/favorites");
+      const favRes = await fetch("https://bsy-backend.vercel.app/api/favorites");
       const favData = await favRes.json(); // [{ user_id, recipe_id }, ...]
 
       // Filter favorites for the logged-in user
       const userFavorites = favData.filter((f) => f.user_id === user?.sub);
 
       // Fetch all recipes
-      const recipeRes = await fetch("http://localhost:5000/items");
+      const recipeRes = await fetch("https://bsy-backend.vercel.app/api/items");
       const allRecipes = await recipeRes.json(); // [{ _id, title, filters, calories, ... }]
 
       // Match recipes that are in the user's favorites
