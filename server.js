@@ -24,21 +24,28 @@ app.post("/api/get-prices", async (req, res) => {
 
   try {
     const prompt = "Provide a price estimate for each of the following items, " +
-    "returning only a JSON array of strings with the prices. For example:" +
-    " [\"$2.99\", \"$5.49\", \"$1.25\"]. Items: " + searchQueries.join(", ");
+    "returning only a JSON array of strings with the prices. Refer to this website for the most accurate prices For example:" +
+    " [\"$2.99\", \"$5.49\", \"$1.25\"]. Here are the items Items: " + searchQueries.join(", ");
     
+
     const result = await genAI.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: prompt
+        contents: prompt,
+        config: {
+          tools: [
+            {
+              urlContext:{}
+            }
+          ],
+        },
     });
 
     const text = result.text;
     // The AI should return a JSON string like '["$2.99", "$5.49"]'
     // We parse it into a real array before sending it to the frontend
     const prices = JSON.parse(text);
-    console.log("Fetched prices from AI:", prices);//DEBUG
     res.json({ prices });
-
+    console.log("Fetched prices from AI:", prices);//DEBUG
   } 
   catch (error) 
   {
