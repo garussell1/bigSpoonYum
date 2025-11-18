@@ -274,7 +274,7 @@ export const RecipeDash = () => {
               {selectedRecipe && (
                 <div>
                   <h1 className="text-2xl font-bold">{selectedRecipe.name}</h1>
-                  <p>{selectedRecipe.instructions}</p>
+                  <p style={{ whiteSpace: 'pre-line' }}>{selectedRecipe.instructions}</p>
                   <list>
                     
                   </list>

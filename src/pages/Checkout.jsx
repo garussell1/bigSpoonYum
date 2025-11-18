@@ -61,7 +61,7 @@ export const Checkout = () => {
           {recipeToShow && (
             <div>
               <h1 className="text-2xl font-bold">{recipeToShow.name}</h1>
-              <p>{recipeToShow.instructions}</p>
+              <p style={{ whiteSpace: 'pre-line' }}>{recipeToShow.instructions}</p>
             </div>  
           )}
         </Popup>
