@@ -2,7 +2,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
-import { Heart } from "lucide-react";
+import { Heart, Trash } from "lucide-react";
 import { Onboarding } from "./Onboarding";
 import Popup from "../components/Popup";
 import RecipeForm from "../components/RecipeForm";
@@ -132,6 +132,21 @@ const Dashboard = () => {
     }
     loadUser();
   }, [user]);
+
+  const handleDeleteItin = async (itinID) => {
+    try {
+      const res = await fetch(`https://bsy-backend.vercel.app/api/itenerary?id=${itinID}`, {
+      //const res = await fetch(`http://localhost:5000/items/${recipeToDelete._id}` ,{
+        method: 'DELETE',
+      });
+
+      if (!res.ok) throw new Error('Failed to delete recipe');
+      setItineraries((prev) => prev.filter((r) => r._id !== itinID)); // Remove from UI
+      setIsPopupOpen(false)
+    } catch (err) {
+      console.error('Error deleting recipe:', err);
+    }
+  }
 
   
 
@@ -452,9 +467,11 @@ const displayRecipes = async (itinID) => {
                         <h2>{s.name}</h2>
                       </div>
                     ))}
+                    <button onClick={()=>{handleDeleteItin(selectedItinerary._id); setSelectedItinerary(null);}}><Trash className='text-red'/></button>
                     <button className="cosmic-button" onClick={() => handleCheckout()}>
                      Use this Itinerary
                     </button>
+
                         
                   </div>  
                     )}
@@ -480,6 +497,7 @@ const displayRecipes = async (itinID) => {
                   <p className="text-sm text-gray-600 mt-3">
                     {r.shortDesc}
                   </p>
+                  
                   
 
         
@@ -512,49 +530,6 @@ const displayRecipes = async (itinID) => {
   );
 };
 
-/* --- Presentational components --- */
-
-const RecipeCard = ({ recipe, selected, onToggle }) => {
-  const { title, tags = [], calories } = recipe;
-  return (
-    <article
-      onClick={onToggle}
-      className={`rounded-2xl border bg-white p-5 shadow-sm hover:shadow transition cursor-pointer
-        ${selected ? "ring-2 ring-blue-500" : ""}`}
-      title="Click to select"
-    >
-      <h3 className="font-semibold text-lg text-center">{title}</h3>
-      {tags.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2 justify-center">
-          {tags.map((t) => (
-            <span
-              key={t}
-              className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-800"
-            >
-              {t}
-            </span>
-          ))}
-        </div>
-      )}
-      {typeof calories === "number" && (
-        <p className="text-sm text-gray-600 mt-3 text-center">{calories} kcal</p>
-      )}
-    </article>
-  );
-};
-
-
-const ListCard = ({ list }) => {
-  const { name, itemsCount } = list;
-  return (
-    <article className="rounded-2xl border bg-white p-5 shadow-sm hover:shadow transition">
-      <h3 className="font-semibold text-lg">{name}</h3>
-      <p className="text-sm text-gray-600 mt-2">
-        {itemsCount} {itemsCount === 1 ? "item" : "items"}
-      </p>
-    </article>
-  );
-};
 
 const EmptyState = ({ text }) => (
   <div className="rounded-2xl border bg-white p-6 text-center text-gray-600">
