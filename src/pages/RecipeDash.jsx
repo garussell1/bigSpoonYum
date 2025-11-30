@@ -47,10 +47,53 @@ export const RecipeDash = () => {
     const [ isPopupOpen, setIsPopupOpen] = useState(false);
     const [ isRecipePopupOpen, setIsRecipePopupOpen] = useState(false);
     const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
-    const handleCheckout = () => {
-        localStorage.setItem("selectedRecipes", JSON.stringify(selected));
-        navigate("/checkout");
+    const handleCheckout = async () => {
+    // Check if user has selected any recipes
+    if (selected.length === 0) {
+      alert("Please select at least one recipe before checking out.");
+      return;
     }
+
+    try {
+      // Create itinerary payload with timestamp to ensure uniqueness
+      const timestamp = new Date().toISOString();
+      const itineraryData = {
+        user_id: user.sub,
+        name: `Trip ${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`,
+        shortDesc: `Itinerary with ${selected.length} recipe${selected.length !== 1 ? 's' : ''}`,
+        recipeList: selected.map(recipe => ({ recipe_id: recipe._id }))
+      };
+
+      // Save itinerary to backend
+      const response = await fetch("https://bsy-backend.vercel.app/api/itenerary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(itineraryData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 409) {
+          // Handle duplicate itinerary name
+          throw new Error("An itinerary with this name already exists. Please try again.");
+        }
+        throw new Error(errorData.error || "Failed to create itinerary");
+      }
+
+      const savedItinerary = await response.json();
+      console.log("Itinerary created:", savedItinerary);
+
+      // Store both recipes and itinerary ID in localStorage for checkout page
+      localStorage.setItem("selectedRecipes", JSON.stringify(selected));
+      localStorage.setItem("currentItineraryId", savedItinerary._id);
+      
+      // Navigate to checkout
+      navigate("/checkout");
+    } catch (error) {
+      console.error("Error creating itinerary:", error);
+      alert(error.message || "There was an error creating your itinerary. Please try again.");
+    }
+  };
 
     const [activeTag, setActiveTag] = useState("all");
     const [selected, setSelected] = useState([]);
@@ -139,6 +182,7 @@ export const RecipeDash = () => {
       if (!res.ok) throw new Error('Failed to delete recipe');
       setRecipes((prev) => prev.filter((r) => r._id !== recipeToDelete._id)); // Remove from UI
       setRecipeToDelete(null); // Clear the state
+      setSelectedRecipe(null)
       setIsPopupOpen(false); // Close popup
     } catch (err) {
       console.error('Error deleting recipe:', err);
@@ -380,13 +424,15 @@ export const RecipeDash = () => {
                           onClick={() => {
                             handleDeleteRecipe();
                             setIsDeletePopupOpen(false);
+                            setIsRecipePopupOpen(false);
+                            setIsPopupOpen(false);
                           }}
                           className="cosmic-button bg-red-600 hover:bg-red-700"
                         >
                           Yes, Delete
                         </button>
                         <button
-                          onClick={() => setIsDeletePopupOpen(false)}
+                          onClick={() => {setIsDeletePopupOpen(false); setIsRecipePopupOpen(false); setIsPopupOpen(false);}}
                           className="cosmic-button bg-gray-400 hover:bg-gray-500 flex justify-between"
                         >
                           Cancel

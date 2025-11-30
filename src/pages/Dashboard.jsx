@@ -41,6 +41,9 @@ const Dashboard = () => {
   const [selected, setSelected] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [recipes, setRecipes] = useState([]);
+  const [itineraries, setItineraries] = useState([]);
+  const [itineraryRecipes, setItineraryRecipes] = useState([]);
+  const [selectedItinerary, setSelectedItinerary] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(null);
   const [userLoaded, setUserLoaded] = useState(false);
@@ -53,10 +56,67 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
 
-  const handleCheckout = () => {
-        localStorage.setItem("selectedRecipes", JSON.stringify(selected));
+  const handleCheckout = async () => {
+    // Case 1: User selected an existing itinerary
+    if (selectedItinerary && selectedItinerary._id) {
+      try {
+        // Simply navigate to checkout with the existing itinerary ID
+        localStorage.setItem("currentItineraryId", selectedItinerary._id);
         navigate("/checkout");
+      } catch (error) {
+        console.error("Error loading itinerary:", error);
+        alert("There was an error loading your itinerary. Please try again.");
+      }
+      return;
     }
+
+    // Case 2: User selected individual recipes - create new itinerary
+    if (selected.length === 0) {
+      alert("Please select at least one recipe or itinerary before checking out.");
+      return;
+    }
+
+    try {
+      // Create itinerary payload with timestamp to ensure uniqueness
+      const timestamp = new Date().toISOString();
+      const itineraryData = {
+        user_id: user.sub,
+        name: `Trip ${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`,
+        shortDesc: `Itinerary with ${selected.length} recipe${selected.length !== 1 ? 's' : ''}`,
+        recipeList: selected.map(recipe => ({ recipe_id: recipe._id }))
+      };
+
+      // Save itinerary to backend
+      const response = await fetch("https://bsy-backend.vercel.app/api/itenerary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(itineraryData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 409) {
+          // Handle duplicate itinerary name
+          throw new Error("An itinerary with this name already exists. Please try again.");
+        }
+        throw new Error(errorData.error || "Failed to create itinerary");
+      }
+
+      const savedItinerary = await response.json();
+      console.log("Itinerary created:", savedItinerary);
+
+      // Store both recipes and itinerary ID in localStorage for checkout page
+      localStorage.setItem("selectedRecipes", JSON.stringify(selected));
+      localStorage.setItem("currentItineraryId", savedItinerary._id);
+      
+      // Navigate to checkout
+      navigate("/checkout");
+    } catch (error) {
+      console.error("Error creating itinerary:", error);
+      alert(error.message || "There was an error creating your itinerary. Please try again.");
+    }
+  }
+  
 
   if (isLoading) return <div className="p-6">Loading…</div>;
   if (!isAuthenticated) return <Navigate to="/" replace />;
@@ -72,6 +132,8 @@ const Dashboard = () => {
     }
     loadUser();
   }, [user]);
+
+  
 
   useEffect(() => {
     if(user && userLoaded) {
@@ -153,6 +215,40 @@ const Dashboard = () => {
 
   if (user) loadFavorites();
 }, [user]);
+
+// preload Itineraries
+useEffect(() => {
+  const loadItineraries = async () => {
+    const itinRes = await fetch("https://bsy-backend.vercel.app/api/itenerary");
+    const itinData = await itinRes.json(); // [{ user_id, recipe_id }, ...]
+
+    // Filter itineraries for the logged-in user
+    const userItineraries = itinData.filter((f) => f.user_id === user?.sub);
+
+
+    setItineraries(userItineraries);
+  };
+  if (user) loadItineraries();
+}, [user]);
+
+const displayRecipes = async (itinID) => {
+  const itinRes = await fetch(
+    `https://bsy-backend.vercel.app/api/itenerary?id=${itinID}`
+  );
+  const itinerary = await itinRes.json();
+
+  const recipeRes = await fetch("https://bsy-backend.vercel.app/api/items");
+  const allRecipes = await recipeRes.json();
+
+  const recipeIds = itinerary.recipeList.map(r => r.recipe_id);
+
+  const itinRecipes = allRecipes.filter(r =>
+    recipeIds.includes(r._id)
+  );
+
+  setItineraryRecipes(itinRecipes);
+};
+
 
 
   //transition the favorite ids to recipes
@@ -339,19 +435,62 @@ const Dashboard = () => {
                 )}
               </section>
 
-        {/* Favorite Lists */}
-        {/* <section className="space-y-4">
-          <h2 className="text-2xl font-semibold text-center">Favorite Custom Lists</h2>
-          {favorites.lists.length === 0 ? (
-            <EmptyState text="No favorite lists yet." />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {favorites.lists.map((l) => (
-                <ListCard key={l.id} list={l} />
-              ))}
-            </div>
-          )}
-        </section> */}
+        {/* Favorite Itineraries */}
+        <section className="space-y-4">
+          <h3 className="text-2xl font-semibold text-center">Your Itineraries</h3>
+
+          <Popup
+            isOpen={!!selectedItinerary}
+            onClose={() => setSelectedItinerary(null)}
+          >
+            {selectedItinerary && (
+                  <div className='space-y-4'>
+                    <h1 className="text-2xl font-bold">{selectedItinerary.name}</h1>
+                    <p style={{ whiteSpace: 'pre-line' }}><i>{selectedItinerary.shortDesc}</i></p>
+                    {itineraryRecipes.map((s) => (
+                      <div key={s._id} className="space-y-2">
+                        <h2>{s.name}</h2>
+                      </div>
+                    ))}
+                    <button className="cosmic-button" onClick={() => handleCheckout()}>
+                     Use this Itinerary
+                    </button>
+                        
+                  </div>  
+                    )}
+                  </Popup>
+
+
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {itineraries.map((r) => (
+              <article
+                key={r._id}
+                onClick={() => {
+                  setSelectedItinerary(r);
+                  displayRecipes(r._id);
+                }}
+                className={`rounded-2xl border bg-white p-5 shadow-sm hover:shadow transition cursor-pointer ${
+                  selected.find((x) => x._id === r._id) ? "ring-2 ring-blue-500" : ""
+                }`}
+                title="Click to select"
+                >
+                  <h4 className="font-semibold text-lg">{r.name}</h4>
+                  {/* simple metadata */}
+                  <p className="text-sm text-gray-600 mt-3">
+                    {r.shortDesc}
+                  </p>
+                  
+
+        
+                          {/* instructions (short preview) */}
+                          
+        
+                          
+                </article>
+            ))}
+          </div>
+        </section>
       </div>
       <div>
         <button onClick={() => setIsPopupOpen(true)}className="cosmic-button"> Checkout</button>
