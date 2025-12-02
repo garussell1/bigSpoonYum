@@ -182,7 +182,7 @@ export const RecipeDash = () => {
       if (!res.ok) throw new Error('Failed to delete recipe');
       setRecipes((prev) => prev.filter((r) => r._id !== recipeToDelete._id)); // Remove from UI
       setRecipeToDelete(null); // Clear the state
-      setSelectedRecipe(null)
+      setSelectedRecipe(null);
       setIsPopupOpen(false); // Close popup
     } catch (err) {
       console.error('Error deleting recipe:', err);

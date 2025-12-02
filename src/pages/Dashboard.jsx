@@ -142,6 +142,7 @@ const Dashboard = () => {
 
       if (!res.ok) throw new Error('Failed to delete recipe');
       setItineraries((prev) => prev.filter((r) => r._id !== itinID)); // Remove from UI
+      setSelectedItinerary(null);
       setIsPopupOpen(false)
     } catch (err) {
       console.error('Error deleting recipe:', err);
