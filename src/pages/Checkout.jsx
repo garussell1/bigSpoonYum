@@ -4,6 +4,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import Popup from "../components/Popup";
 import { Heart, LucidePencil } from "lucide-react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { jsPDF } from "jspdf";
 
 export function formatQty(value, maxDecimals = 2) {
   if (typeof value !== "number" || isNaN(value)) return value;
@@ -129,6 +130,29 @@ export const Checkout = () => {
     }
   }, [selectedRecipes, numPeople]);
 
+  const generatePDF = () => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(16);
+    doc.text("Ingredients", 20, 20);
+
+    let yPosition = 30;
+
+    shoppingList.forEach((ingredient) => {
+      const line = `${ingredient.name}: ${ingredient.quantity} ${ingredient.unit || ""}`.trim();
+      doc.setFontSize(12);
+      doc.text(line, 20, yPosition);
+      yPosition += 10;
+
+      if (yPosition > 280) {
+        doc.addPage();
+        yPosition = 20;
+      }
+    });
+
+    doc.save("shopping-list.pdf");
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center p-4 page-title">
@@ -153,7 +177,7 @@ export const Checkout = () => {
           )}
         </Popup>
 
-          <div className="mb-8">
+          <div className="mb-8 flex flex-col items-center">
             <label className="block font-semibold mb-2">Number of People</label>
             <input
               type="number"
@@ -162,6 +186,10 @@ export const Checkout = () => {
               value={numPeople}
               onChange={(e) => setNumPeople(Number(e.target.value))}
             />
+
+            <button onClick={generatePDF} className="cosmic-button mt-6 w-auto">
+              Download Shopping List as PDF
+            </button>
           </div>
         <div className='flex items-center justify-center gap-4'>
           {/* EDIT NAME */}
@@ -294,7 +322,7 @@ function buildShoppingList(recipes, numPeople) {
       // round scaled values to 2 decimal places
       const rawScaledQuantity = ing.quantity * scaleFactor;
       console.log(rawScaledQuantity);
-      const scaledQuantity = rawScaledQuantity.toFixed(2);
+      const scaledQuantity = parseFloat(rawScaledQuantity.toFixed(2));
       console.log(scaledQuantity)
       if (!list[key]) {
         list[key] = { ...ing, quantity: scaledQuantity };
